@@ -24,7 +24,7 @@ jobs:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2019-latest
         ports:
-          - 1433:1433
+          - 1433:1434
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "StrongP@ssw0rd123"
@@ -46,28 +46,27 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Check for existing container using port 1433
+      - name: Start SQL Server container
         run: |
-          if lsof -i:1433; then
-            echo "Port 1433 is already in use. Stopping conflicting container."
-            docker ps -q --filter "ancestor=mcr.microsoft.com/mssql/server:2019-latest" | xargs -r docker stop
+          if [ "$(docker ps -aq -f name=sqlserver)" ]; then
+            docker rm -f sqlserver
           fi
-
-      - name: Run SQL Server container (alternative port if necessary)
-        run: |
+          
           docker run -d --name sqlserver \
             --user root \
             -e 'ACCEPT_EULA=Y' \
             -e 'SA_PASSWORD=StrongP@ssw0rd123' \
             -p 1433:1433 \
             mcr.microsoft.com/mssql/server:2019-latest || \
-          echo "Failed to start on default port, trying port 1434" && \
-          docker run -d --name sqlserver \
-            --user root \
-            -e 'ACCEPT_EULA=Y' \
-            -e 'SA_PASSWORD=StrongP@ssw0rd123' \
-            -p 1434:1433 \
-            mcr.microsoft.com/mssql/server:2019-latest
+          {
+            echo "Failed to start on default port, trying port 1434" && \
+            docker run -d --name sqlserver \
+              --user root \
+              -e 'ACCEPT_EULA=Y' \
+              -e 'SA_PASSWORD=StrongP@ssw0rd123' \
+              -p 1434:1434 \
+              mcr.microsoft.com/mssql/server:2019-latest
+          }
 
       - name: Install SQL Server tools and GPG
         run: |
