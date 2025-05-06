@@ -8,8 +8,6 @@
 
 # .github/workflows/maven.yml
 # .github/workflows/ci.yml
-# .github/workflows/ci.yml
-# .github/workflows/ci.yml
 name: Java CI with Maven
 
 on:
@@ -30,10 +28,6 @@ jobs:
           SA_PASSWORD: "StrongP@ssw0rd123"
         ports:
           - 1433:1433
-        options: >-
-          --health-cmd "bash -c 'nc -z localhost 1433'"
-          --health-interval 5s
-          --health-retries 12
 
     env:
       SPRING_DATASOURCE_URL:       jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
@@ -52,16 +46,17 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Wait for SQL Server to be ready
+      - name: Wait for SQL Server to start (up to ~2.5 minutes)
         run: |
-          echo "⏳ Waiting for SQL Server to accept connections…"
+          echo "⏳ Waiting for SQL Server to accept connections..."
           for i in {1..30}; do
             if nc -z localhost 1433; then
-              echo "✅ SQL Server is up"
+              echo "✅ SQL Server is up on port 1433"
               break
             fi
-            sleep 2
+            echo "  attempt $i/30: retrying in 5s..."
+            sleep 5
           done
 
-      - name: Build & Test
+      - name: Build & run tests
         run: mvn clean verify --batch-mode -Dspring.profiles.active=dev
