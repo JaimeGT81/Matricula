@@ -45,36 +45,35 @@ jobs:
           java-version: '17'
           cache: maven
 
-#      - name: Install SQL Server Tools (sqlcmd)
-#        run: |
-#          sudo apt-get update
-#          sudo apt-get install -y curl apt-transport-https gnupg2
-#          # Add the Microsoft GPG key
-#          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-#          # Add the Microsoft package repository for Ubuntu 20.04
-#          sudo add-apt-repository "$(curl -s https://packages.microsoft.com/config/ubuntu/20.04/prod.list)"
-#          sudo apt-get update
-#          # Install the required packages
-#          ACCEPT_EULA=Y sudo apt-get install -y msodbcsql17 mssql-tools
-#          # Add mssql-tools to PATH
-#          echo "PATH=\"\$PATH:/opt/mssql-tools/bin\"" >> $GITHUB_ENV
-#
-#      - name: Install netcat
-#        run: sudo apt-get install -y netcat
-#
-#      - name: Wait for SQL Server to be healthy
-#        run: |
-#          for i in {1..30}; do
-#            if nc -z localhost 1433; then
-#              echo "✅ SQL Server ready"
-#              break
-#            fi
-#            echo "⏳ Waiting for SQL Server..."
-#            sleep 2
-#          done
-#
-#      - name: Create SME_DB database
-#        run: echo "CREATE DATABASE SME_DB;" | sqlcmd -S localhost -U sa -P "$SPRING_DATASOURCE_PASSWORD"
+      - name: Start SQL Server container
+        uses: docker/setup-buildx-action@v2
+        with:
+          buildkit: false
+
+      - name: Run SQL Server container
+        run: |
+          docker run -d --name sqlserver \
+            -e 'ACCEPT_EULA=Y' \
+            -e 'SA_PASSWORD=StrongP@ssw0rd123' \
+            -p 1433:1433 \
+            mcr.microsoft.com/mssql/server:2019-latest
+
+      - name: Wait for SQL Server to start
+        run: |
+          echo "Waiting for SQL Server to start..."
+          sleep 30
+
+      - name: Create SME_DB database
+        run: |
+          docker exec -i sqlserver /opt/mssql-tools/bin/sqlcmd \
+            -S localhost -U sa -P StrongP@ssw0rd123 \
+            -Q "CREATE DATABASE SME_DB"
+
+      - name: Verify database creation
+        run: |
+          docker exec -i sqlserver /opt/mssql-tools/bin/sqlcmd \
+            -S localhost -U sa -P StrongP@ssw0rd123 \
+            -Q "SELECT name FROM sys.databases WHERE name = 'SME_DB'"
 
       - name: Build and run tests
         run: mvn clean verify --batch-mode
