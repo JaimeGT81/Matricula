@@ -26,18 +26,16 @@ jobs:
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "YourStrong@Password"
-        # healthcheck para asegurarnos de que SQL Server está listo
         options: >-
-          --health-cmd "bash -c 'echo > /dev/tcp/localhost/1433'"
+          --health-cmd "bash -c 'nc -z localhost 1433'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
 
-    # Variables de entorno que Spring Boot usará para conectar
     env:
       SPRING_DATASOURCE_URL: jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
       SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: sa
+      SPRING_DATASOURCE_PASSWORD: YourStrong@Password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
     steps:
@@ -51,21 +49,31 @@ jobs:
           java-version: '17'
           cache: maven
 
+      - name: Install SQL Server Tools (sqlcmd)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl apt-transport-https gnupg2
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list \
+            | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
+          echo "PATH=\"\$PATH:/opt/mssql-tools/bin\"" >> $GITHUB_ENV
+
       - name: Wait for SQL Server to be healthy
         run: |
-          echo "⏳ Esperando a que SQL Server esté listo..."
           for i in {1..30}; do
             if nc -z localhost 1433; then
               echo "✅ SQL Server listo"
               break
             fi
-            echo "…esperando 2s"
+            echo "⏳ Esperando SQL Server..."
             sleep 2
           done
 
       - name: Create SME_DB database
-        run: |
-          echo "CREATE DATABASE SME_DB;" | /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$SPRING_DATASOURCE_PASSWORD"
+        run: echo "CREATE DATABASE SME_DB;" | sqlcmd -S localhost -U sa -P "$SPRING_DATASOURCE_PASSWORD"
 
       - name: Build and run tests
         run: mvn clean verify --batch-mode
+
