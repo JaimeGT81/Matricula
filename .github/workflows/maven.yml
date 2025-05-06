@@ -7,14 +7,14 @@
 # documentation.
 
 # .github/workflows/maven.yml
-
+# .github/workflows/ci.yml
 name: Java CI with Maven
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ develop ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ develop ]
 
 jobs:
   build:
@@ -22,13 +22,21 @@ jobs:
 
     services:
       sqlserver:
-        image: mcr.microsoft.com/mssql/server:2019-latest
+        image: mcr.microsoft.com/azure-sql-edge:latest
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "StrongP@ssw0rd123"
         ports:
           - 1433:1433
+        options: >-
+          --health-cmd "nc -z localhost 1433"
+          --health-interval 5s
+          --health-retries 12
 
     env:
-      SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: StrongP@ssw0rd123
+      SPRING_DATASOURCE_URL:       jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME:  sa
+      SPRING_DATASOURCE_PASSWORD:  StrongP@ssw0rd123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
     steps:
@@ -41,3 +49,17 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: maven
+
+      - name: Wait for SQL Server to be ready
+        run: |
+          for i in {1..30}; do
+            if nc -z localhost 1433; then
+              echo "✅ Database is up"
+              break
+            fi
+            echo "⏳ Waiting for database..."
+            sleep 2
+          done
+
+      - name: Build and run tests
+        run: mvn clean verify --batch-mode -Dspring.profiles.active=dev
