@@ -14,7 +14,6 @@ on:
   pull_request:
     branches: [ "develop" ]
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,7 +22,7 @@ jobs:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2019-latest
         ports:
-          - 0:1433
+          - 1433:1433
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "StrongP@ssw0rd123"
@@ -45,11 +44,6 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Start SQL Server container
-        uses: docker/setup-buildx-action@v2
-        with:
-          buildkit: false
-
       - name: Run SQL Server container
         run: |
           docker run -d --name sqlserver \
@@ -59,11 +53,11 @@ jobs:
             -p 1433:1433 \
             mcr.microsoft.com/mssql/server:2019-latest
 
-      - name: Install SQL Server tools
+      - name: Install SQL Server tools and GPG
         run: |
           docker exec -u root -i sqlserver bash -c "\
             apt-get update && \
-            apt-get install -y curl apt-transport-https && \
+            apt-get install -y curl apt-transport-https gnupg && \
             curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
             curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
             apt-get update && \
