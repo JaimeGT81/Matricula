@@ -24,10 +24,7 @@ jobs:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2019-latest
         ports:
-          - 1433:1434
-        env:
-          ACCEPT_EULA: "Y"
-          SA_PASSWORD: "StrongP@ssw0rd123"
+          - 1433:1433
 
     env:
       SPRING_DATASOURCE_USERNAME: sa
@@ -54,9 +51,9 @@ jobs:
           
           # Check if port 1433 is available
           if ! lsof -i:1433; then
-            PORT=1433
+            HOST_PORT=1433
           else
-            PORT=1434
+            HOST_PORT=1434
           fi
 
           # Start the SQL Server container on the available port
@@ -64,13 +61,13 @@ jobs:
             --user root \
             -e 'ACCEPT_EULA=Y' \
             -e 'SA_PASSWORD=StrongP@ssw0rd123' \
-            -p $PORT:1433 \
+            -p $HOST_PORT:1433 \
             mcr.microsoft.com/mssql/server:2019-latest
 
-          echo "SQL Server started on port $PORT"
+          echo "SQL Server started on port $HOST_PORT"
 
           # Update environment variable for dynamic port
-          echo "SPRING_DATASOURCE_URL=jdbc:sqlserver://localhost:$PORT;databaseName=SME_DB;encrypt=true;trustServerCertificate=true" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_URL=jdbc:sqlserver://localhost:$HOST_PORT;databaseName=SME_DB;encrypt=true;trustServerCertificate=true" >> $GITHUB_ENV
 
       - name: Install SQL Server tools and GPG
         run: |
@@ -103,4 +100,3 @@ jobs:
 
       - name: Build and run tests
         run: mvn clean verify --batch-mode
-
