@@ -18,7 +18,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     services:
       sqlserver:
@@ -41,28 +41,3 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: maven
-
-      - name: Start SQL Server container
-        run: |
-          # Remove any existing container named 'sqlserver' to avoid conflicts
-          if (docker ps -aq -f name=sqlserver) { docker rm -f sqlserver }
-
-          # Check if port 1433 is available
-          if (!(Test-NetConnection -Port 1433 -ComputerName localhost -InformationLevel Quiet)) {
-            $HOST_PORT = 1433
-          } else {
-            $HOST_PORT = 1434
-          }
-
-          # Start the SQL Server container on the available port
-          docker run -d --name sqlserver `
-            --user root `
-            -e 'ACCEPT_EULA=Y' `
-            -e 'SA_PASSWORD=StrongP@ssw0rd123' `
-            -p $HOST_PORT:1433 `
-            mcr.microsoft.com/mssql/server:2019-latest
-
-          Write-Host "SQL Server started on port $HOST_PORT"
-
-          # Update environment variable for dynamic port
-          echo "SPRING_DATASOURCE_URL=jdbc:sqlserver://localhost:$HOST_PORT;databaseName=SME_DB;encrypt=true;trustServerCertificate=true" >> $env:GITHUB_ENV
