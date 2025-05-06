@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio - Sistema de Matrícula</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+    <h1>Sistema de Matrícula</h1>
+</header>
+
+<nav class="menu-grid">
+    <a th:href="@{/alumnos}" class="menu-item">
+        <img th:src="@{/images/alumnos.png}" alt="Alumnos"/>
+        <div>Alumnos</div>
+    </a>
+    <a th:href="@{/cursos}" class="menu-item">
+        <img th:src="@{/images/cursos.png}" alt="Cursos"/>
+        <div>Cursos</div>
+    </a>
+    <a th:href="@{/docentes}" class="menu-item">
+        <img th:src="@{/images/docentes.png}" alt="Docentes"/>
+        <div>Docentes</div>
+    </a>
+    <a th:href="@{/secciones}" class="menu-item">
+        <img th:src="@{/images/secciones.png}" alt="Secciones"/>
+        <div>Secciones</div>
+    </a>
+    <a th:href="@{/finanzas}" class="menu-item">
+        <img th:src="@{/images/finanzas.png}" alt="Finanzas"/>
+        <div>Finanzas</div>
+    </a>
+    <a th:href="@{/reportes}" class="menu-item">
+        <img th:src="@{/images/reportes.png}" alt="Reportes"/>
+        <div>Reportes</div>
+    </a>
+    <a th:href="@{/configuracion}" class="menu-item">
+        <img th:src="@{/images/configuracion.png}" alt="Configuración"/>
+        <div>Configuración</div>
+    </a>
+</nav>
+
+<footer>
+    <a th:href="@{/logout}" class="logout-button" title="Cerrar sesión">
+        <img th:src="@{/images/exit.png}" alt="Salir"/>
+    </a>
+</footer>
+</body>
+</html>

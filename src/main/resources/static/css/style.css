@@ -1,0 +1,95 @@
+/* style.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== Login ===== */
+.login-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 320px;
+    margin: 5% auto;
+}
+.login-container h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+.form-group {
+    margin-bottom: 1rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: .25rem;
+}
+.form-group input {
+    width: 100%;
+    padding: .5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+.button-group button,
+.button-group a {
+    padding: .5rem 1rem;
+    border: none;
+    background: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.button-group a {
+    background: #6c757d;
+    text-align: center;
+}
+
+/* ===== Inicio/Menu ===== */
+header {
+    background: #fff;
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+header h1 {
+    margin: 0;
+}
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+}
+.menu-item {
+    background: #fff;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    text-decoration: none;
+    color: #333;
+}
+.menu-item img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: .5rem;
+}
+footer {
+    background: #fff;
+    padding: .5rem;
+    border-top: 1px solid #ccc;
+    text-align: right;
+}
+.logout-button img {
+    width: 24px;
+    vertical-align: middle;
+}
