@@ -23,15 +23,11 @@ jobs:
     services:
       sqlserver:
         image: mcr.microsoft.com/azure-sql-edge:latest
-        env:
-          ACCEPT_EULA: "Y"
-          SA_PASSWORD: "StrongP@ssw0rd123"
-        ports:
-          - 1433:1433
         options: >-
-          --health-cmd "nc -z localhost 1433"
-          --health-interval 5s
-          --health-retries 12
+          --name sqlserver
+          -e 'ACCEPT_EULA=Y'
+          -e 'SA_PASSWORD=StrongP@ssw0rd123'
+          -v ./path/to/mssql.conf:/var/opt/mssql/mssql.conf
 
     env:
       SPRING_DATASOURCE_URL:       jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
