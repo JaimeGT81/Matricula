@@ -30,7 +30,6 @@ jobs:
           SA_PASSWORD: "StrongP@ssw0rd123"
 
     env:
-      SPRING_DATASOURCE_URL: jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
       SPRING_DATASOURCE_USERNAME: sa
       SPRING_DATASOURCE_PASSWORD: StrongP@ssw0rd123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -48,25 +47,30 @@ jobs:
 
       - name: Start SQL Server container
         run: |
+          # Remove any existing container named 'sqlserver' to avoid conflicts
           if [ "$(docker ps -aq -f name=sqlserver)" ]; then
             docker rm -f sqlserver
           fi
           
+          # Check if port 1433 is available
+          if ! lsof -i:1433; then
+            PORT=1433
+          else
+            PORT=1434
+          fi
+
+          # Start the SQL Server container on the available port
           docker run -d --name sqlserver \
             --user root \
             -e 'ACCEPT_EULA=Y' \
             -e 'SA_PASSWORD=StrongP@ssw0rd123' \
-            -p 1433:1433 \
-            mcr.microsoft.com/mssql/server:2019-latest || \
-          {
-            echo "Failed to start on default port, trying port 1434" && \
-            docker run -d --name sqlserver \
-              --user root \
-              -e 'ACCEPT_EULA=Y' \
-              -e 'SA_PASSWORD=StrongP@ssw0rd123' \
-              -p 1434:1434 \
-              mcr.microsoft.com/mssql/server:2019-latest
-          }
+            -p $PORT:1433 \
+            mcr.microsoft.com/mssql/server:2019-latest
+
+          echo "SQL Server started on port $PORT"
+
+          # Update environment variable for dynamic port
+          echo "SPRING_DATASOURCE_URL=jdbc:sqlserver://localhost:$PORT;databaseName=SME_DB;encrypt=true;trustServerCertificate=true" >> $GITHUB_ENV
 
       - name: Install SQL Server tools and GPG
         run: |
