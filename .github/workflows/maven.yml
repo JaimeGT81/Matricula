@@ -28,6 +28,11 @@ jobs:
           SA_PASSWORD: "StrongP@ssw0rd123"
         ports:
           - 1433:1433
+        options: >-
+          --name sqlserver
+          --health-cmd "bash -c 'nc -z localhost 1433'"
+          --health-interval 10s
+          --health-retries 15
 
     env:
       SPRING_DATASOURCE_URL:       jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
@@ -46,42 +51,24 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Install SQL Server Tools (sqlcmd)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https gnupg2
-          # Import the Microsoft GPG key
-          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft.asc.gpg > /dev/null
-          # Add the Microsoft package repository and ensure consistent signing key
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.asc.gpg] https://packages.microsoft.com/ubuntu/$(lsb_release -rs)/prod $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mssql-release.list > /dev/null
-          # Update package lists and install the required packages
-          sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc-dev
-          # Update PATH for this step and subsequent steps
-          echo "PATH=/opt/mssql-tools/bin:$PATH" >> $GITHUB_ENV
-          export PATH=/opt/mssql-tools/bin:$PATH
-
-      - name: Verify sqlcmd installation
-        run: |
-          which sqlcmd
-          sqlcmd -?
-
-      - name: Wait for SQL Server to start (up to ~2.5 minutes)
+      - name: Wait for SQL Server to be ready
         run: |
           echo "⏳ Waiting for SQL Server to accept connections..."
           for i in {1..30}; do
             if nc -z localhost 1433; then
-              echo "✅ SQL Server is up on port 1433"
+              echo "✅ SQL Server is up"
               break
             fi
-            echo "  attempt $i/30: retrying in 5s..."
             sleep 5
           done
 
-      - name: Create SME_DB database
+      - name: Create SME_DB if missing
         run: |
-          echo "IF DB_ID('SME_DB') IS NULL CREATE DATABASE SME_DB;" \
-            | sqlcmd -S localhost -U sa -P "$SPRING_DATASOURCE_PASSWORD"
+          echo "⏳ Creating SME_DB (if not exists)..."
+          docker exec sqlserver \
+            /opt/mssql-tools/bin/sqlcmd \
+              -S localhost -U sa -P "$SPRING_DATASOURCE_PASSWORD" \
+              -Q "IF DB_ID('SME_DB') IS NULL CREATE DATABASE SME_DB;"
 
       - name: Build & run tests
         run: mvn clean verify --batch-mode -Dspring.profiles.active=dev
