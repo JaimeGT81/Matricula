@@ -46,6 +46,27 @@ jobs:
           java-version: '17'
           cache: maven
 
+      - name: Install SQL Server Tools (sqlcmd)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl apt-transport-https gnupg2 lsb-release
+          # Importa la llave GPG de Microsoft
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          # Añade el repositorio de paquetes de Microsoft para tu Ubuntu runner
+          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list \
+            | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          # Instala el driver ODBC y las herramientas de SQL Server
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
+          # Actualiza el PATH para este paso y para los siguientes
+          echo "PATH=/opt/mssql-tools/bin:\$PATH" >> $GITHUB_ENV
+          export PATH=/opt/mssql-tools/bin:$PATH
+
+      - name: Verify sqlcmd installation
+        run: |
+          which sqlcmd
+          sqlcmd -?
+
       - name: Wait for SQL Server to start (up to ~2.5 minutes)
         run: |
           echo "⏳ Waiting for SQL Server to accept connections..."
@@ -57,21 +78,6 @@ jobs:
             echo "  attempt $i/30: retrying in 5s..."
             sleep 5
           done
-
-      - name: Install SQL Server Tools (sqlcmd)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https gnupg2
-          # Importa la llave GPG de Microsoft
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          # Agrega el repositorio de paquetes de Microsoft para Ubuntu 20.04
-          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list \
-            | sudo tee /etc/apt/sources.list.d/msprod.list
-          sudo apt-get update
-          # Instala el driver ODBC y las herramientas de SQL Server
-          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
-          # Añade sqlcmd al PATH de este runner
-          echo "PATH=\"/opt/mssql-tools/bin:\$PATH\"" >> $GITHUB_ENV
 
       - name: Create SME_DB database
         run: |
