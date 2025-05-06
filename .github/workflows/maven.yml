@@ -50,15 +50,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl apt-transport-https gnupg2 lsb-release
-          # Importa la llave GPG de Microsoft
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          # Añade el repositorio de paquetes de Microsoft para tu Ubuntu runner
-          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list \
+          # Import the Microsoft GPG key
+          curl -s https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          # Add the Microsoft package repository
+          curl -s https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list \
             | sudo tee /etc/apt/sources.list.d/msprod.list
+          # Update package lists and install the required packages
           sudo apt-get update
-          # Instala el driver ODBC y las herramientas de SQL Server
-          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
-          # Actualiza el PATH para este paso y para los siguientes
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc-dev
+          # Update PATH for this step and subsequent steps
           echo "PATH=/opt/mssql-tools/bin:\$PATH" >> $GITHUB_ENV
           export PATH=/opt/mssql-tools/bin:$PATH
 
