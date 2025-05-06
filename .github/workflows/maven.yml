@@ -47,20 +47,20 @@ jobs:
 
       - name: Install SQL Server Tools (sqlcmd)
         run: |
-          apt-get update
-          apt-get install -y curl apt-transport-https gnupg2
+          sudo apt-get update
+          sudo apt-get install -y curl apt-transport-https gnupg2
           # Add the Microsoft GPG key
-          curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           # Add the Microsoft package repository for Ubuntu 20.04
-          add-apt-repository "$(curl -s https://packages.microsoft.com/config/ubuntu/20.04/prod.list)"
-          apt-get update
+          sudo add-apt-repository "$(curl -s https://packages.microsoft.com/config/ubuntu/20.04/prod.list)"
+          sudo apt-get update
           # Install the required packages
-          ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
+          ACCEPT_EULA=Y sudo apt-get install -y msodbcsql17 mssql-tools
           # Add mssql-tools to PATH
           echo "PATH=\"\$PATH:/opt/mssql-tools/bin\"" >> $GITHUB_ENV
 
       - name: Install netcat
-        run: apt-get install -y netcat
+        run: sudo apt-get install -y netcat
 
       - name: Wait for SQL Server to be healthy
         run: |
