@@ -28,12 +28,7 @@ jobs:
           SA_PASSWORD: "StrongP@ssw0rd123"
         ports:
           - 1433:1433
-        options: >-
-          --name sqlserver
-          --health-cmd "bash -c 'nc -z localhost 1433'"
-          --health-interval 10s
-          --health-retries 30
-#          -v /tmp/sqlserver-data:/var/opt/mssql
+        # NO options, NO volume mounts
 
     env:
       SPRING_DATASOURCE_URL:       jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
@@ -63,13 +58,17 @@ jobs:
             sleep 5
           done
 
+      - name: Debug SQL Server logs if still not ready
+        if: failure()
+        run: docker logs $(docker ps -qf "ancestor=mcr.microsoft.com/mssql/server:2019-latest")
+
       - name: Create SME_DB if missing
         run: |
           echo "⏳ Creating SME_DB (if not exists)..."
-          docker exec sqlserver \
+          docker exec $(docker ps -qf "ancestor=mcr.microsoft.com/mssql/server:2019-latest") \
             /opt/mssql-tools/bin/sqlcmd \
-              -S localhost -U sa -P "$SPRING_DATASOURCE_PASSWORD" \
-              -Q "IF DB_ID('SME_DB') IS NULL CREATE DATABASE SME_DB;"
+            -S localhost -U sa -P "$SPRING_DATASOURCE_PASSWORD" \
+            -Q "IF DB_ID('SME_DB') IS NULL CREATE DATABASE SME_DB;"
 
       - name: Build & run tests
         run: mvn clean verify --batch-mode -Dspring.profiles.active=dev
