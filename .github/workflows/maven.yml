@@ -28,12 +28,12 @@ jobs:
           SA_PASSWORD: "StrongP@ssw0rd123"
         ports:
           - 1433:1433
-        # NO options, NO volume mounts
+        # no options, no volumes
 
     env:
-      SPRING_DATASOURCE_URL:       jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
-      SPRING_DATASOURCE_USERNAME:  sa
-      SPRING_DATASOURCE_PASSWORD:  StrongP@ssw0rd123
+      SPRING_DATASOURCE_URL:      jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: StrongP@ssw0rd123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
     steps:
@@ -58,16 +58,14 @@ jobs:
             sleep 5
           done
 
-      - name: Debug SQL Server logs if still not ready
-        if: failure()
-        run: docker logs $(docker ps -qf "ancestor=mcr.microsoft.com/mssql/server:2019-latest")
-
       - name: Create SME_DB if missing
         run: |
-          echo "⏳ Creating SME_DB (if not exists)..."
-          docker exec $(docker ps -qf "ancestor=mcr.microsoft.com/mssql/server:2019-latest") \
+          echo "⏳ Creating SME_DB (if not exists)…"
+          docker run --rm --network host mcr.microsoft.com/mssql-tools \
             /opt/mssql-tools/bin/sqlcmd \
-            -S localhost -U sa -P "$SPRING_DATASOURCE_PASSWORD" \
+            -S localhost,1433 \
+            -U sa \
+            -P "$SPRING_DATASOURCE_PASSWORD" \
             -Q "IF DB_ID('SME_DB') IS NULL CREATE DATABASE SME_DB;"
 
       - name: Build & run tests
