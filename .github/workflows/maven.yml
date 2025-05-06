@@ -32,7 +32,8 @@ jobs:
           --name sqlserver
           --health-cmd "bash -c 'nc -z localhost 1433'"
           --health-interval 10s
-          --health-retries 15
+          --health-retries 30
+          -v /tmp/sqlserver-data:/var/opt/mssql
 
     env:
       SPRING_DATASOURCE_URL:       jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
