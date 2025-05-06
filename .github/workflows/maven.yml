@@ -14,6 +14,7 @@ on:
   pull_request:
     branches: [ "develop" ]
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,11 +27,6 @@ jobs:
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "StrongP@ssw0rd123"
-#        options: >-
-#          --health-cmd "exec /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'sa' -Q 'SELECT 1'"
-#          --health-interval 20s
-#          --health-timeout 10s
-#          --health-retries 10
 
     env:
       SPRING_DATASOURCE_URL: jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
@@ -51,27 +47,29 @@ jobs:
 
       - name: Install SQL Server Tools (sqlcmd)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https gnupg2
+          apt-get update
+          apt-get install -y curl apt-transport-https gnupg2
           # Add the Microsoft GPG key
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          # Add the Microsoft package repository for Ubuntu 20.04 (default for ubuntu-latest)
-          sudo add-apt-repository "$(curl -s https://packages.microsoft.com/config/ubuntu/20.04/prod.list)"
-          sudo apt-get update
+          curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+          # Add the Microsoft package repository for Ubuntu 20.04
+          add-apt-repository "$(curl -s https://packages.microsoft.com/config/ubuntu/20.04/prod.list)"
+          apt-get update
           # Install the required packages
-          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
+          ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
           # Add mssql-tools to PATH
           echo "PATH=\"\$PATH:/opt/mssql-tools/bin\"" >> $GITHUB_ENV
+
       - name: Install netcat
-        run: sudo apt-get install -y netcat
+        run: apt-get install -y netcat
+
       - name: Wait for SQL Server to be healthy
         run: |
           for i in {1..30}; do
             if nc -z localhost 1433; then
-              echo "✅ SQL Server listo"
+              echo "✅ SQL Server ready"
               break
             fi
-            echo "⏳ Esperando SQL Server..."
+            echo "⏳ Waiting for SQL Server..."
             sleep 2
           done
 
