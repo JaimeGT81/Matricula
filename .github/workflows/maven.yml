@@ -1,0 +1,72 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# .github/workflows/maven.yml
+# .github/workflows/ci.yml
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "StrongP@ssw0rd123"
+        ports:
+          - 1433:1433
+        # no options, no volumes
+
+    env:
+      SPRING_DATASOURCE_URL:      jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: StrongP@ssw0rd123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Wait for SQL Server to be ready
+        run: |
+          echo "⏳ Waiting for SQL Server to accept connections..."
+          for i in {1..30}; do
+            if nc -z localhost 1433; then
+              echo "✅ SQL Server is up"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Create SME_DB if missing
+        run: |
+          echo "⏳ Creating SME_DB (if not exists)…"
+          docker run --rm --network host mcr.microsoft.com/mssql-tools \
+            /opt/mssql-tools/bin/sqlcmd \
+            -S localhost,1433 \
+            -U sa \
+            -P "$SPRING_DATASOURCE_PASSWORD" \
+            -Q "IF DB_ID('SME_DB') IS NULL CREATE DATABASE SME_DB;"
+
+      - name: Build & run tests
+        run: mvn clean verify --batch-mode -Dspring.profiles.active=dev
