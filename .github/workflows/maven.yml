@@ -25,17 +25,17 @@ jobs:
           - 1433:1433
         env:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: "YourStrong@Password"
+          SA_PASSWORD: "sa"
         options: >-
-          --health-cmd "bash -c 'nc -z localhost 1433'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd "exec /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'sa' -Q 'SELECT 1'"
+          --health-interval 20s
+          --health-timeout 10s
+          --health-retries 10
 
     env:
       SPRING_DATASOURCE_URL: jdbc:sqlserver://localhost:1433;databaseName=SME_DB;encrypt=true;trustServerCertificate=true
       SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: YourStrong@Password
+      SPRING_DATASOURCE_PASSWORD: sa
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
     steps:
