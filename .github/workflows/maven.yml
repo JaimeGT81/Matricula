@@ -61,7 +61,7 @@ jobs:
 
       - name: Install SQL Server tools
         run: |
-          docker exec -i sqlserver bash -c "\
+          docker exec -u root -i sqlserver bash -c "\
             apt-get update && \
             apt-get install -y curl apt-transport-https && \
             curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
@@ -78,13 +78,13 @@ jobs:
 
       - name: Create SME_DB database
         run: |
-          docker exec -i sqlserver /opt/mssql-tools/bin/sqlcmd \
+          docker exec -u root -i sqlserver /opt/mssql-tools/bin/sqlcmd \
             -S localhost -U sa -P StrongP@ssw0rd123 \
             -Q "CREATE DATABASE SME_DB"
 
       - name: Verify database creation
         run: |
-          docker exec -i sqlserver /opt/mssql-tools/bin/sqlcmd \
+          docker exec -u root -i sqlserver /opt/mssql-tools/bin/sqlcmd \
             -S localhost -U sa -P StrongP@ssw0rd123 \
             -Q "SELECT name FROM sys.databases WHERE name = 'SME_DB'"
 
