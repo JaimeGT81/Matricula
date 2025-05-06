@@ -9,6 +9,7 @@
 # .github/workflows/maven.yml
 # .github/workflows/ci.yml
 # .github/workflows/ci.yml
+# .github/workflows/ci.yml
 name: Java CI with Maven
 
 on:
@@ -23,7 +24,7 @@ jobs:
 
     services:
       sqlserver:
-        image: mcr.microsoft.com/azure-sql-edge:latest
+        image: mcr.microsoft.com/mssql/server:2019-latest
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "StrongP@ssw0rd123"
@@ -62,5 +63,5 @@ jobs:
             sleep 2
           done
 
-      - name: Build and run tests
+      - name: Build & Test
         run: mvn clean verify --batch-mode -Dspring.profiles.active=dev
