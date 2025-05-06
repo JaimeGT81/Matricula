@@ -49,17 +49,16 @@ jobs:
       - name: Install SQL Server Tools (sqlcmd)
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https gnupg2 lsb-release
+          sudo apt-get install -y curl apt-transport-https gnupg2
           # Import the Microsoft GPG key
-          curl -s https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft.asc.gpg
           # Add the Microsoft package repository
-          curl -s https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list \
-            | sudo tee /etc/apt/sources.list.d/msprod.list
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.asc.gpg] https://packages.microsoft.com/ubuntu/$(lsb_release -rs)/prod $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
           # Update package lists and install the required packages
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc-dev
           # Update PATH for this step and subsequent steps
-          echo "PATH=/opt/mssql-tools/bin:\$PATH" >> $GITHUB_ENV
+          echo "PATH=/opt/mssql-tools/bin:$PATH" >> $GITHUB_ENV
           export PATH=/opt/mssql-tools/bin:$PATH
 
       - name: Verify sqlcmd installation
