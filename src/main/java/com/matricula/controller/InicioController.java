@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import java.security.Principal;
 
 /**
  * Controlador para la página de inicio.
@@ -12,12 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class InicioController {
 
     @GetMapping("/inicio")
-    public String showInicio(HttpSession session, Model model) {
-        Object user = session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-        model.addAttribute("username", user);
+    public String showInicio(Principal principal, Model model) {
+        // si llegaste aquí, ya estás autenticado
+        String username = principal.getName();
+        model.addAttribute("username", username);
         return "inicio";
     }
 }
