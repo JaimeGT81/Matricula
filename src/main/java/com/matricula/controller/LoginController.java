@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class LoginController {
 
-    @Autowired
-    private AuthenticationService authService;
+//    @Autowired
+//    private AuthenticationService authService;
 
     @GetMapping({"/", "/login"})
     public String showLogin(Model model) {
@@ -25,17 +25,17 @@ public class LoginController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String doLogin(@ModelAttribute("loginForm") LoginForm form,
-                          Model model,
-                          HttpSession session) {
-        if (authService.authenticate(form)) {
-            // Guardar usuario en sesión
-            session.setAttribute("user", form.getUsername());
-            return "redirect:/inicio";
-        } else {
-            model.addAttribute("error", "Usuario o contraseña inválidos");
-            return "login";
-        }
-    }
+//    @PostMapping("/login")
+//    public String doLogin(@ModelAttribute("loginForm") LoginForm form,
+//                          Model model,
+//                          HttpSession session) {
+//        if (authService.authenticate(form)) {
+//            // Guardar usuario en sesión
+//            session.setAttribute("user", form.getUsername());
+//            return "redirect:/inicio";
+//        } else {
+//            model.addAttribute("error", "Usuario o contraseña inválidos");
+//            return "login";
+//        }
+//    }
 }

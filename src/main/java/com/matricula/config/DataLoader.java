@@ -7,6 +7,8 @@ import com.matricula.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -16,9 +18,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Carga datos de ejemplo en desarrollo (perfil "dev").
- */
 @Component
 @Profile("dev")
 public class DataLoader implements CommandLineRunner {
@@ -33,9 +32,14 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // Crear un encoder localmente para evitar dependencia circular
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+        // Cargar usuario admin si no existe
         loadUsers();
+
+        // Cargar ubigeos desde CSV en classpath
         loadUbigeos();
-        // Aquí podrás añadir más loaders: cursos, docentes, alumnos, secciones...
     }
 
     private void loadUsers() {
