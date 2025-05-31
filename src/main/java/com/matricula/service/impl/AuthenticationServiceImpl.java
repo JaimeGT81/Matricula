@@ -24,7 +24,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public boolean authenticate(LoginForm form) {
-        logger.info("Entering authenticate method with username: {}", form.getUsername());
+//        logger.info("Entering authenticate method with username: {}", form.getUsername());
         return userRepository.findByUserId(form.getUsername())
                 .map(user -> {
                     logger.info("Comparing passwords: raw={} encrypted={}", form.getPassword(), user.getUserPassword());
