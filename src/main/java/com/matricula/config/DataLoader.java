@@ -36,32 +36,48 @@ public class DataLoader implements CommandLineRunner {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
         // Cargar usuario admin si no existe
+        loadUsers();
+
+        // Cargar ubigeos desde CSV en classpath
+        loadUbigeos();
+    }
+
+    private void loadUsers() {
         if (userRepo.count() == 0) {
             UserAccount admin = new UserAccount();
             admin.setUserId("admin");
             admin.setUserEmail("admin@entidad.com");
-            admin.setUserPassword(encoder.encode("12345"));
+            admin.setUserPassword("12345");
             admin.setFechaRegistro(LocalDateTime.now());
             admin.setFechaConexion(LocalDateTime.now());
-            admin.setRol((short) 1);
+            admin.setRol((short)1);
             userRepo.save(admin);
         }
+    }
 
-        // Cargar ubigeos desde CSV en classpath
+    private void loadUbigeos() throws Exception {
+        if (ubigeoRepo.count() > 0) {
+            return;
+        }
         ClassPathResource resource = new ClassPathResource("data/Ubigeos.csv");
-        try (BufferedReader br = new BufferedReader(
+        if (!resource.exists()) {
+            throw new IllegalStateException(
+                    "Ubigeos.csv no encontrado en classpath 'data/Ubigeos.csv'"
+            );
+        }
+        try (var reader = new BufferedReader(
                 new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
-            List<Ubigeo> lista = br.lines()
+            List<Ubigeo> lista = reader.lines()
                     .skip(1)
                     .map(line -> {
-                        String[] campos = line.split(",");
+                        String[] cols = line.split(",", -1);
                         Ubigeo u = new Ubigeo();
-                        u.setIdDepa(campos[0]);
-                        u.setIdProv(campos[1]);
-                        u.setIdDist(campos[2]);
-                        u.setDepartamento(campos[3]);
-                        u.setProvincia(campos[4]);
-                        u.setDistrito(campos[5]);
+                        u.setIdDepa(cols[0]);
+                        u.setIdProv(cols[1]);
+                        u.setIdDist(cols[2]);
+                        u.setDepartamento(cols[3]);
+                        u.setProvincia(cols[4]);
+                        u.setDistrito(cols[5]);
                         return u;
                     })
                     .collect(Collectors.toList());
