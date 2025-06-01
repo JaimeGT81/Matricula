@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 @Controller
@@ -59,14 +60,14 @@ public class DocenteController {
     }
 
     @PostMapping
-    private String createDocente(@ModelAttribute DocenteDto docente, HttpSession httpSession){
+    private String createDocente(@ModelAttribute DocenteDto docente, Principal principal){
         MultipartFile nuevaFoto = docente.getFotoNueva();
         if (nuevaFoto != null && !nuevaFoto.isEmpty() &&
                 nuevaFoto.getOriginalFilename() != null &&
                 !nuevaFoto.getOriginalFilename().isBlank()){
             docente.setFotoActual(uploadFileService.copy(docente.getFotoNueva(), "docente"));
         }
-        docente.setUsuarioRegistro((String) httpSession.getAttribute("user"));
+        docente.setUsuarioRegistro((String) principal.getName());
         docente.setFechaRegistro(LocalDateTime.now());
         docente.setEstado(true);
         docenteService.save(docente);
@@ -74,7 +75,7 @@ public class DocenteController {
     }
 
     @PostMapping("/editar/{dni}")
-    private String updateDocente(@ModelAttribute DocenteDto docente, @PathVariable String dni, HttpSession httpSession) {
+    private String updateDocente(@ModelAttribute DocenteDto docente, @PathVariable String dni, Principal principal) {
         MultipartFile nuevaFoto = docente.getFotoNueva();
 
         // Procesar nueva foto solo si se subió una válida
@@ -97,7 +98,7 @@ public class DocenteController {
 
         docente.setDni(dni);
         docente.setEstado(docente.getEstado() != null ? docente.getEstado() : false);
-        docente.setUsuarioModficacion((String) httpSession.getAttribute("user"));
+        docente.setUsuarioModficacion((String) principal.getName());
         docente.setFechaModificacion(LocalDateTime.now());
 
         docenteService.save(docente);

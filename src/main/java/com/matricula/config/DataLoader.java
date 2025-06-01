@@ -31,12 +31,14 @@ public class DataLoader implements CommandLineRunner {
     private final UserRepository userRepo;
     private final CarreraRepository carreraRepo;
     private final DocenteRepository docenteRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo) {
+    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder) {
         this.ubigeoRepo = ubigeoRepo;
         this.userRepo = userRepo;
         this.carreraRepo = carreraRepo;
         this.docenteRepo = docenteRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -58,7 +60,7 @@ public class DataLoader implements CommandLineRunner {
             UserAccount admin = new UserAccount();
             admin.setUserId("admin");
             admin.setUserEmail("admin@entidad.com");
-            admin.setUserPassword("12345");
+            admin.setUserPassword(passwordEncoder.encode( "12345"));
             admin.setFechaRegistro(LocalDateTime.now());
             admin.setFechaConexion(LocalDateTime.now());
             admin.setRol((short)1);
