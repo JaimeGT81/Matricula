@@ -43,16 +43,11 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Crear un encoder localmente para evitar dependencia circular
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
         // Aquí podrás añadir más loaders: cursos, docentes, alumnos, secciones...
         loadUsers();
         loadUbigeos();
         loadCarreras();
         loadDocentes();
-
-
     }
 
     private void loadUsers() {
