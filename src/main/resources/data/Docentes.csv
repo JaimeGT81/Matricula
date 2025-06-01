@@ -1,0 +1,50 @@
+dniDocente,apellidoDoc,celularDoc,direccionDomicilio,estadoDoc,fechaNacimiento,fechaRegistro,fotoDocente,generoDoc,nombreDoc,usuarioRegistro,idCarrera,idUbigeo
+12457681,González,987654321,Av. Arequipa 1234,1,1985-03-15,2025-05-31,,Masculino,Juan,admin,1,1282
+12321652,Rodríguez,987123456,Jr. Cusco 456,1,1990-07-22,2025-05-31,,Femenino,Maria,admin,2,1283
+45618973,Martínez,912345678,Av. La Marina 789,1,1982-11-30,2025-05-31,,Masculino,Carlos,admin,3,1284
+32165234,López,934567890,Calle Trujillo 101,1,1978-05-10,2025-05-31,,Femenino,Laura,admin,4,1285
+98765285,Silva,956789012,Av. Brasil 2020,1,1992-09-05,2025-05-31,,Masculino,Pedro,admin,5,1285
+97894166,Vargas,923456781,Av. Javier Prado 345,1,1987-04-18,2025-05-31,,Femenino,Ana,admin,6,1284
+77642587,Castro,934567812,Jr. Huancavelica 678,1,1983-08-25,2025-05-31,,Masculino,Luis,admin,7,1284
+45678196,Quispe,945678123,Av. Salaverry 901,1,1991-12-10,2025-05-31,,Femenino,Sofia,admin,8,1285
+33468978,Mendoza,956781234,Calle Libertad 234,1,1979-06-20,2025-05-31,,Masculino,Ricardo,admin,9,1285
+21345681,Ríos,967812345,Av. Grau 567,1,1986-02-14,2025-05-31,,Femenino,Carmen,admin,10,1289
+12345167,Flores,978123456,Jr. Puno 890,1,1984-10-05,2025-05-31,,Masculino,Jorge,admin,11,1287
+98768975,Herrera,989234567,Av. Tacna 123,1,1993-07-30,2025-05-31,,Femenino,Patricia,admin,12,1289
+77894568,Torres,912345678,Calle Lima 456,1,1980-01-15,2025-05-31,,Masculino,Roberto,admin,13,1287
+99865792,Chávez,923456789,Av. Uruguay 789,1,1989-09-22,2025-05-31,,Femenino,Daniela,admin,14,1287
+33321654,Díaz,934567890,Jr. Ayacucho 012,1,1981-05-08,2025-05-31,,Masculino,Fernando,admin,15,1287
+44561879,Medina,945678901,Av. Alfonso Ugarte 345,1,1994-11-12,2025-05-31,,Femenino,Claudia,admin,16,1303
+11123458,Romero,956789012,Calle Bolívar 678,1,1977-03-25,2025-05-31,,Masculino,Alberto,admin,17,1303
+77798546,Salazar,967890123,Av. Petit Thouars 901,1,1988-08-18,2025-05-31,,Femenino,Verónica,admin,18,1303
+32352648,Guzmán,978901234,Jr. Ica 234,1,1985-12-30,2025-05-31,,Masculino,Diego,admin,19,1315
+12141568,Aguilar,989012345,Av. Venezuela 567,1,1990-04-05,2025-05-31,,Femenino,Gabriela,admin,20,1315
+33226648,Paredes,912301234,Calle Moquegua 890,1,1983-07-20,2025-05-31,,Masculino,Óscar,admin,21,1315
+15467892,Valdivia,923412345,Av. Bolivia 123,1,1976-10-15,2025-05-31,,Femenino,Mariana,admin,22,1315
+48658254,Córdova,934523456,Jr. Amazonas 456,1,1991-02-28,2025-05-31,,Masculino,Arturo,admin,23,1315
+79879846,Ortiz,945634567,Av. Colonial 789,1,1987-06-10,2025-05-31,,Femenino,Lucía,admin,1,1315
+15975345,Miranda,956745678,Calle Huánuco 012,1,1984-01-25,2025-05-31,,Masculino,José,admin,2,1321
+75345689,Franco,967856789,Av. Garcilaso de la Vega 345,1,1993-09-08,2025-05-31,,Femenino,Valeria,admin,3,1321
+75346891,Rivas,978967890,Jr. Junín 678,1,1979-04-12,2025-05-31,,Masculino,Manuel,admin,4,1321
+13485219,Bravo,989078901,Av. San Martín 901,1,1988-11-30,2025-05-31,,Femenino,Carolina,admin,5,1321
+13046879,Campos,912389012,Calle Ancash 234,1,1982-08-05,2025-05-31,,Masculino,Antonio,admin,6,1313
+20346897,Sandoval,923490123,Av. Nicolás de Piérola 567,1,1995-03-18,2025-05-31,,Femenino,Natalia,admin,7,1321
+12305495,Zúñiga,934501234,Jr. Loreto 890,1,1980-12-22,2025-05-31,,Masculino,Francisco,admin,8,1321
+15607980,Delgado,945612345,Av. Canadá 123,1,1986-05-07,2025-05-31,,Femenino,Adriana,admin,9,1321
+15957564,Peña,956723456,Calle Apurímac 456,1,1992-10-10,2025-05-31,,Masculino,Samuel,admin,10,1321
+77990808,Castillo,967834567,Av. República de Panamá 789,1,1983-02-15,2025-05-31,,Femenino,Jimena,admin,11,1321
+77546805,Cabrera,978945678,Jr. Pasco 012,1,1978-07-28,2025-05-31,,Masculino,Rodrigo,admin,12,1321
+32468089,Fernández,989056789,Av. Pardo 345,1,1989-01-05,2025-05-31,,Femenino,Silvana,admin,13,1300
+46548970,Espinoza,912367890,Calle Tumbes 678,1,1984-06-20,2025-05-31,,Masculino,Héctor,admin,14,1300
+77009898,Muñoz,923478901,Av. Aviación 901,1,1991-09-12,2025-05-31,,Femenino,Daniela,admin,15,1300
+98798054,Acosta,934589012,Jr. Ucayali 234,1,1977-04-25,2025-05-31,,Masculino,Marco,admin,16,1300
+46548600,Figueroa,945690123,Av. Angamos 567,1,1985-11-08,2025-05-31,,Femenino,Paola,admin,17,1300
+11004650,Carrasco,956701234,Calle Madre de Dios 890,1,1990-03-15,2025-05-31,,Masculino,Andrés,admin,18,1300
+21305105,Pacheco,967812345,Av. Benavides 123,1,1981-08-30,2025-05-31,,Femenino,Lorena,admin,20,1300
+46570809,Luna,978923456,Jr. Huallaga 456,1,1987-12-05,2025-05-31,,Masculino,Guillermo,admin,20,1300
+33225566,Mejía,989034567,Av. Primavera 789,1,1994-05-18,2025-05-31,,Femenino,Marcela,admin,21,1323
+77889900,Bustamante,912345678,Calle Moquegua 012,1,1982-10-22,2025-05-31,,Masculino,Alonso,admin,22,1323
+23140600,Valenzuela,923456789,Av. Larco 345,1,1988-02-07,2025-05-31,,Femenino,Marisol,admin,23,1323
+44564809,Cáceres,934567890,Jr. Ilo 678,1,1979-07-12,2025-05-31,,Masculino,Ernesto,admin,1,1323
+11105460,Palacios,945678901,Av. San Felipe 901,1,1993-04-25,2025-05-31,,Femenino,Gisela,admin,2,1323
+31050640,Barrios,956789012,Calle Huaraz 234,1,1986-09-08,2025-05-31,,Masculino,Raul,admin,3,1323
