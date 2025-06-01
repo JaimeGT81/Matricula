@@ -3,41 +3,46 @@ package com.matricula.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * HU002: Gestión de alumnos (CRUD)
- */
-
 @Entity
-@Table(name = "Alumno")
+@Table(name = "alumno")
 public class Alumno {
+
     @Id
-    @Column(length = 20)
+    @Column(name = "dni", length = 20)
     private String dniAlum;
 
-    @Lob
-    private String foto;
+    @Column(name = "nombres", nullable = false, length = 100)
+    private String nombres;
 
-    @Column(length = 100, nullable = false)
-    private String nombreAlum;
+    @Column(name = "apellidos", nullable = false, length = 100)
+    private String apellidos;
 
-    @Column(length = 100, nullable = false)
-    private String apellidolAlum;
+    @Column(name = "genero", nullable = false, length = 10)
+    private String genero;
 
-    @Column(length = 10, nullable = false)
-    private String generoAlum;
-
-    @ManyToOne
-    @JoinColumn(name = "idUbigeo")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_ubigeo", nullable = false)
     private Ubigeo ubigeo;
 
-    private Long codCarrera;
-    private LocalDateTime fechaRegistro;
-    private String usuarioRegistro;
-    private LocalDateTime fechaUltModificacion;
-    private String usuarioUltModificacion;
-    private Boolean estadoAlum;
+    @Column(name = "cod_carrera")
+    private Long codigoCarrera;
 
-    // getters y setters...
+    @Column(name = "fecha_registro", updatable = false)
+    private LocalDateTime fechaRegistro;
+
+    @Column(name = "usuario_registro", updatable = false)
+    private String usuarioRegistro;
+
+    @Column(name = "fecha_ult_modificacion")
+    private LocalDateTime fechaUltModificacion;
+
+    @Column(name = "usuario_ult_modificacion")
+    private String usuarioUltModificacion;
+
+    @Column(name = "activo")
+    private Boolean activo;
+
+    public Alumno() { }
 
     public String getDniAlum() {
         return dniAlum;
@@ -47,36 +52,28 @@ public class Alumno {
         this.dniAlum = dniAlum;
     }
 
-    public String getFoto() {
-        return foto;
+    public String getNombres() {
+        return nombres;
     }
 
-    public void setFoto(String foto) {
-        this.foto = foto;
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
     }
 
-    public String getNombreAlum() {
-        return nombreAlum;
+    public String getApellidos() {
+        return apellidos;
     }
 
-    public void setNombreAlum(String nombreAlum) {
-        this.nombreAlum = nombreAlum;
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
-    public String getApellidolAlum() {
-        return apellidolAlum;
+    public String getGenero() {
+        return genero;
     }
 
-    public void setApellidolAlum(String apellidolAlum) {
-        this.apellidolAlum = apellidolAlum;
-    }
-
-    public String getGeneroAlum() {
-        return generoAlum;
-    }
-
-    public void setGeneroAlum(String generoAlum) {
-        this.generoAlum = generoAlum;
+    public void setGenero(String genero) {
+        this.genero = genero;
     }
 
     public Ubigeo getUbigeo() {
@@ -87,12 +84,12 @@ public class Alumno {
         this.ubigeo = ubigeo;
     }
 
-    public Long getCodCarrera() {
-        return codCarrera;
+    public Long getCodigoCarrera() {
+        return codigoCarrera;
     }
 
-    public void setCodCarrera(Long codCarrera) {
-        this.codCarrera = codCarrera;
+    public void setCodigoCarrera(Long codigoCarrera) {
+        this.codigoCarrera = codigoCarrera;
     }
 
     public LocalDateTime getFechaRegistro() {
@@ -127,11 +124,11 @@ public class Alumno {
         this.usuarioUltModificacion = usuarioUltModificacion;
     }
 
-    public Boolean getEstadoAlum() {
-        return estadoAlum;
+    public Boolean getActivo() {
+        return activo;
     }
 
-    public void setEstadoAlum(Boolean estadoAlum) {
-        this.estadoAlum = estadoAlum;
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
 }

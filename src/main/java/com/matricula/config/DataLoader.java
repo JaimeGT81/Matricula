@@ -1,13 +1,8 @@
 package com.matricula.config;
 
-import com.matricula.entity.Carrera;
-import com.matricula.entity.Docente;
-import com.matricula.entity.Ubigeo;
-import com.matricula.entity.UserAccount;
-import com.matricula.repository.CarreraRepository;
-import com.matricula.repository.DocenteRepository;
-import com.matricula.repository.UbigeoRepository;
-import com.matricula.repository.UserRepository;
+import com.github.javafaker.Faker;
+import com.matricula.entity.*;
+import com.matricula.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
@@ -19,7 +14,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,13 +28,15 @@ public class DataLoader implements CommandLineRunner {
     private final CarreraRepository carreraRepo;
     private final DocenteRepository docenteRepo;
     private final PasswordEncoder passwordEncoder;
+    private final AlumnoRepository alumnoRepository;
 
-    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder) {
+    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder, AlumnoRepository alumnoRepository) {
         this.ubigeoRepo = ubigeoRepo;
         this.userRepo = userRepo;
         this.carreraRepo = carreraRepo;
         this.docenteRepo = docenteRepo;
         this.passwordEncoder = passwordEncoder;
+        this.alumnoRepository = alumnoRepository;
     }
 
     @Override
@@ -47,6 +46,7 @@ public class DataLoader implements CommandLineRunner {
         loadUbigeos();
         loadCarreras();
         loadDocentes();
+        loadAlumnos();
     }
 
     private void loadUsers() {
@@ -156,5 +156,35 @@ public class DataLoader implements CommandLineRunner {
                     .collect(Collectors.toList());
             docenteRepo.saveAll(lista);
         }
+    }
+
+    private void loadAlumnos() {
+        if (alumnoRepository.count() > 0) {
+            return;
+        }
+
+        Ubigeo ubigeo = ubigeoRepo.findAll().stream().findFirst()
+                .orElseThrow(() -> new IllegalStateException("No hay ubigeos cargados"));
+
+        Faker faker = new Faker(new Locale("es", "PE"));
+        List<Alumno> alumnos = new ArrayList<>();
+
+        for (int i = 1; i <= 55; i++) {
+            Alumno alumno = new Alumno();
+            alumno.setDniAlum(String.format("%09d", faker.number().numberBetween(100000000, 999999999)));
+            alumno.setNombres(faker.name().firstName() + " " + faker.name().firstName());
+            alumno.setApellidos(faker.name().lastName() + " " + faker.name().lastName());
+            alumno.setGenero(i % 2 == 0 ? "Masculino" : "Femenino");
+            alumno.setUbigeo(ubigeo);
+            alumno.setCodigoCarrera(100L + (i % 5)); // 100 a 104
+            alumno.setFechaRegistro(LocalDateTime.now());
+            alumno.setUsuarioRegistro("Faker");
+            alumno.setFechaUltModificacion(LocalDateTime.now());
+            alumno.setUsuarioUltModificacion("Faker");
+            alumno.setActivo(true);
+            alumnos.add(alumno);
+        }
+
+        alumnoRepository.saveAll(alumnos);
     }
 }
