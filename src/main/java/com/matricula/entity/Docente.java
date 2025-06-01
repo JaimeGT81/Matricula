@@ -1,6 +1,8 @@
 package com.matricula.entity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -27,26 +29,18 @@ public class Docente {
     private String generoDoc;
 
     @Column(nullable = false)
-    private LocalDateTime fechaNacimiento;
+    private LocalDate fechaNacimiento; // MODIFICADO: Tipo de dato cambiado a LocalDate. Razón: La hora de nacimiento no es necesaria
 
     @Column(nullable = false)
     private Long celularDoc;
 
     @ManyToOne
     @JoinColumn(name = "idUbigeo")
-    private Ubigeo ubigeo;
+    private Ubigeo ubigeo; // MODIFICADO: idDepartamento, idProvincia y idDistrito eliminados. Razón: Redundancia, la entidad Ubigeo ya encapsula esta información.
 
-    @Column(length = 10)
-    private String idDepartamento;
-
-    @Column(length = 10)
-    private String idProvincia;
-
-    @Column(length = 10)
-    private String idDistrito;
-
-    @Column(nullable = false)
-    private Long codCarrera;
+    @ManyToOne
+    @JoinColumn(name = "idCarrera")
+    private Carrera carrera; // MODIFICADO: Tipo de dato cambiado por la entidad Carrera
 
     @Column(length = 200)
     private String direccionDomicilio;
@@ -57,14 +51,131 @@ public class Docente {
     @Column(length = 50, nullable = false)
     private String usuarioRegistro;
 
-    @Column(nullable = false)
-    private LocalDateTime fechaUltModificacion;
+    private LocalDateTime fechaUltModificacion; // MODIFICADO: Atributo 'nullable' eliminado. Razón: Este campo solo se asigna al realizar una modificación del registro, es nulo en la creación inicial.
 
-    @Column(length = 50, nullable = false)
-    private String usuarioUltModificacion;
+    @Column(length = 50)
+    private String usuarioUltModificacion; // MODIFICADO: Atributo 'nullable' eliminado. Razón: Este campo solo se asigna al realizar una modificación del registro, es nulo en la creación inicial.
 
     @Column(nullable = false)
     private Boolean estadoDoc;
 
-    // Getters and setters...
+    public String getDniDocente() {
+        return dniDocente;
+    }
+
+    public void setDniDocente(String dniDocente) {
+        this.dniDocente = dniDocente;
+    }
+
+    public String getFotoDocente() {
+        return fotoDocente;
+    }
+
+    public void setFotoDocente(String fotoDocente) {
+        this.fotoDocente = fotoDocente;
+    }
+
+    public String getNombreDoc() {
+        return nombreDoc;
+    }
+
+    public void setNombreDoc(String nombreDoc) {
+        this.nombreDoc = nombreDoc;
+    }
+
+    public String getApellidoDoc() {
+        return apellidoDoc;
+    }
+
+    public void setApellidoDoc(String apellidoDoc) {
+        this.apellidoDoc = apellidoDoc;
+    }
+
+    public String getGeneroDoc() {
+        return generoDoc;
+    }
+
+    public void setGeneroDoc(String generoDoc) {
+        this.generoDoc = generoDoc;
+    }
+
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public Long getCelularDoc() {
+        return celularDoc;
+    }
+
+    public void setCelularDoc(Long celularDoc) {
+        this.celularDoc = celularDoc;
+    }
+
+    public Ubigeo getUbigeo() {
+        return ubigeo;
+    }
+
+    public void setUbigeo(Ubigeo ubigeo) {
+        this.ubigeo = ubigeo;
+    }
+
+    public Carrera getCarrera() {
+        return carrera;
+    }
+
+    public void setCarrera(Carrera carrera) {
+        this.carrera = carrera;
+    }
+
+    public String getDireccionDomicilio() {
+        return direccionDomicilio;
+    }
+
+    public void setDireccionDomicilio(String direccionDomicilio) {
+        this.direccionDomicilio = direccionDomicilio;
+    }
+
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public String getUsuarioRegistro() {
+        return usuarioRegistro;
+    }
+
+    public void setUsuarioRegistro(String usuarioRegistro) {
+        this.usuarioRegistro = usuarioRegistro;
+    }
+
+    public LocalDateTime getFechaUltModificacion() {
+        return fechaUltModificacion;
+    }
+
+    public void setFechaUltModificacion(LocalDateTime fechaUltModificacion) {
+        this.fechaUltModificacion = fechaUltModificacion;
+    }
+
+    public String getUsuarioUltModificacion() {
+        return usuarioUltModificacion;
+    }
+
+    public void setUsuarioUltModificacion(String usuarioUltModificacion) {
+        this.usuarioUltModificacion = usuarioUltModificacion;
+    }
+
+    public Boolean getEstadoDoc() {
+        return estadoDoc;
+    }
+
+    public void setEstadoDoc(Boolean estadoDoc) {
+        this.estadoDoc = estadoDoc;
+    }
 }
