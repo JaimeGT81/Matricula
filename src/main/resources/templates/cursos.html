@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursos - Sistema de Matrícula</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div class="flex flex-col space-y-6">
+        <!-- Título principal -->
+        <div class="text-center">
+            <h1 class="text-5xl font-bold text-gray-800 mb-2">Gestión de Cursos</h1>
+        </div>
+
+        <!-- Barra de búsqueda y botones -->
+        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+            <form method="GET" th:action="@{/cursos}" class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Código</label>
+                        <input type="text" name="codigoCurso" placeholder="Buscar por código" th:value="${param.codigoCurso}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                        <input type="text" name="nombreCurso" placeholder="Buscar por nombre" th:value="${param.nombreCurso}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Créditos</label>
+                        <input type="text" name="creditos" placeholder="Buscar por créditos" th:value="${param.creditos}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button type="submit"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition whitespace-nowrap flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Buscar
+                    </button>
+
+                    <button type="button" onclick="document.getElementById('miModal').classList.remove('hidden')"
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition whitespace-nowrap flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Nuevo
+                    </button>
+
+                    <a th:href="@{/cursos}" type="button"
+                       class="px-6 py-2 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 transition whitespace-nowrap flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="#ffffff" height="14px" width="14px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489.533 489.533" xml:space="preserve">
+                            <g>
+                                <path d="M268.175,488.161c98.2-11,176.9-89.5,188.1-187.7c14.7-128.4-85.1-237.7-210.2-239.1v-57.6c0-3.2-4-4.9-6.7-2.9 l-118.6,87.1c-2,1.5-2,4.4,0,5.9l118.6,87.1c2.7,2,6.7,0.2,6.7-2.9v-57.5c87.9,1.4,158.3,76.2,152.3,165.6 c-5.1,76.9-67.8,139.3-144.7,144.2c-81.5,5.2-150.8-53-163.2-130c-2.3-14.3-14.8-24.7-29.2-24.7c-17.9,0-31.9,15.9-29.1,33.6 C49.575,418.961,150.875,501.261,268.175,488.161z"></path>
+                            </g>
+                        </svg>
+                        Refrescar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Nuevo Curso -->
+        <div id="miModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+            <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 relative">
+                <h2 class="text-xl font-bold mb-4">Nuevo Curso</h2>
+                <form th:action="@{/cursos}" th:object="${newCurso}" method="POST" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="codCurso" class="block text-sm font-medium text-gray-700">Código del Curso:</label>
+                            <input type="text" id="codCurso" th:field="*{codCurso}" required
+                                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                        </div>
+                        <div>
+                            <label for="codCarrera" class="block text-sm font-medium text-gray-700">Código de Carrera:</label>
+                            <input type="number" id="codCarrera" th:field="*{codCarrera}" required
+                                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                        </div>
+                        <div>
+                            <label for="nomCarrera" class="block text-sm font-medium text-gray-700">Nombre de Carrera:</label>
+                            <input type="text" id="nomCarrera" th:field="*{nomCarrera}" required
+                                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                        </div>
+                        <div>
+                            <label for="nomCurso" class="block text-sm font-medium text-gray-700">Nombre del Curso:</label>
+                            <input type="text" id="nomCurso" th:field="*{nomCurso}" required
+                                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                        </div>
+                        <div>
+                            <label for="creditos" class="block text-sm font-medium text-gray-700">Creditos:</label>
+                            <input type="number" id="creditos" th:field="*{creditos}" required
+                                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                            Crear
+                        </button>
+                        <button type="button" onclick="document.getElementById('miModal').classList.add('hidden')"
+                                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
+                            Cerrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabla de Cursos -->
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Carrera</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Curso</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Creditos</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="curso : ${cursos.content}" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${curso.codCurso}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${curso.nomCarrera}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${curso.nomCurso}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${curso.creditos}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span th:classappend="${curso.estadoCurso} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                  class="px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                <span th:text="${curso.estadoCurso} ? 'Activo' : 'Inactivo'"></span>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center space-x-2">
+                                <button th:attr="onclick=|document.getElementById('modalEditar${curso.codCurso}').classList.remove('hidden')|"
+                                        class="px-3 py-1.5 border border-yellow-500 text-yellow-700 rounded-md hover:bg-yellow-50">
+                                    Editar
+                                </button>
+                                <form th:action="@{/cursos/eliminar/{codigo}(codigo=${curso.codCurso})}" method="post"
+                                      onsubmit="return confirm('¿Deseas eliminar este curso?');">
+                                    <button type="submit"
+                                            class="px-3 py-1.5 border border-red-500 text-red-700 rounded-md hover:bg-red-50">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Modal Editar -->
+                            <div th:id="'modalEditar' + ${curso.codCurso}" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+                                <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 relative">
+                                    <h2 class="text-xl font-bold mb-4" th:text="'Editar Curso ' + ${curso.codCurso}"></h2>
+                                    <form th:action="@{/cursos/editar/{codigo}(codigo=${curso.codCurso})}" method="post" class="space-y-4">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Código de Carrera:</label>
+                                                <input type="number" name="codCarrera" th:value="${curso.codCarrera}" required
+                                                       class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Nombre de Carrera:</label>
+                                                <input type="text" name="nomCarrera" th:value="${curso.nomCarrera}" required
+                                                       class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Nombre del Curso:</label>
+                                                <input type="text" name="nomCurso" th:value="${curso.nomCurso}" required
+                                                       class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Creditos:</label>
+                                                <input type="number" name="creditos" th:value="${curso.creditos}" required
+                                                       class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"/>
+                                            </div>
+                                            <div>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" name="estadoCurso" th:checked="${curso.estadoCurso}"
+                                                           class="h-4 w-4 text-blue-600 border-gray-300 rounded"/>
+                                                    <span class="ml-2 text-sm text-gray-700">Activo</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-end space-x-4 pt-4">
+                                            <button type="submit"
+                                                    class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition">
+                                                Guardar Cambios
+                                            </button>
+                                            <button type="button"
+                                                    th:attr="onclick=|document.getElementById('modalEditar${curso.codCurso}').classList.add('hidden')|"
+                                                    class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 transition">
+                                                Cancelar
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div class="flex items-center">
+            <div class="mr-auto">
+                <a th:href="@{/inicio}" class="px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Atrás
+                </a>
+            </div>
+
+            <div class="absolute left-1/2 transform -translate-x-1/2">
+                <nav class="inline-flex rounded-md shadow-sm -space-x-px">
+                    <ul class="inline-flex -space-x-px text-sm">
+                        <li th:if="${currentPage > 0}">
+                            <a th:href="@{/cursos(page=${currentPage - 1}, size=10, codigoCurso=${param.codigoCurso}, nombreCurso=${param.nombreCurso}, creditos=${param.creditos})}"
+                               class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                            <a th:href="@{/cursos(page=${i}, size=10, codigoCurso=${param.codigoCurso}, nombreCurso=${param.nombreCurso}, creditos=${param.creditos})}"
+                               th:classappend="${i == currentPage} ? 'text-blue-600 bg-blue-100 hover:bg-blue-200' : 'text-gray-500 bg-white hover:bg-gray-100'"
+                               class="px-3 py-2 leading-tight border border-gray-300">
+                                <span th:text="${i + 1}"></span>
+                            </a>
+                        </li>
+
+                        <li th:if="${currentPage < totalPages - 1}">
+                            <a th:href="@{/cursos(page=${currentPage + 1}, size=10, codigoCurso=${param.codigoCurso}, nombreCurso=${param.nombreCurso}, creditos=${param.creditos})}"
+                               class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100">
+                                Siguiente
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
