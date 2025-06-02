@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumno</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body>
+<div class="text-center my-6">
+    <h1 class="text-5xl font-bold text-gray-800 mb-2">Gestión de Alumnos</h1>
+</div>
+<div class="w-32 ml-4">
+    <a th:href="@{/inicio}" class="px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Atrás
+    </a>
+</div>
+<div class="mx-4 my-4 flex flex-col space-y-4 text-sm">
+    <div class="flex flex-row space-x-4">
+        <form method="get" th:action="@{/alumnos}" class="flex flex-row space-x-4">
+
+            <div class="flex">
+                <input type="text" name="dni" placeholder="Filtrar Dni" th:value="${param.dni}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+
+            <div class="flex">
+                <input type="text" name="nombres" placeholder="Filtrar Nombres" th:value="${param.nombres}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+
+            <div class="flex">
+                <input type="text" name="apellidos" placeholder="Filtrar Apellidos" th:value="${param.apellidos}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+
+            <div class="flex">
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+                    Buscar
+                </button>
+            </div>
+        </form>
+
+        <button onclick="document.getElementById('miModal').classList.remove('hidden')"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+            Nuevo +
+        </button>
+
+        <!-- Modal -->
+        <div id="miModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+            <div class="bg-white rounded-lg shadow-lg w-96 p-6 relative">
+                <h2 class="text-xl font-bold mb-4">Crear nuevo Alumno</h2>
+                <form th:action="@{/alumnos}" th:object="${newAlumno}" method="post"
+                      class="space-y-4">
+                    <div>
+                        <label for="dniAlum" class="block text-sm font-medium text-gray-700">DNI:</label>
+                        <input type="text" id="dniAlum" th:field="*{dniAlum}" required
+                               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                    </div>
+
+                    <div>
+                        <label for="nombres" class="block text-sm font-medium text-gray-700">Nombres:</label>
+                        <input type="text" id="nombres" th:field="*{nombres}" required
+                               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                    </div>
+
+                    <div>
+                        <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos:</label>
+                        <input type="text" id="apellidos" th:field="*{apellidos}" required
+                               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                    </div>
+
+                    <div>
+                        <label for="genero" class="block text-sm font-medium text-gray-700">Género:</label>
+                        <select id="genero" th:field="*{genero}" required
+                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="" disabled selected>Seleccione</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="idUbigeo" class="block text-sm font-medium text-gray-700">Ubigeo:</label>
+                        <select id="idUbigeo" th:field="*{ubigeo.idUbigeo}" required
+                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="" disabled selected>Seleccione</option>
+                            <option th:each="u : ${ubigeos}" th:value="${u.idUbigeo}"
+                                    th:text="${u.departamento + ' - ' + u.provincia + ' - ' + u.distrito}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="codigoCarrera" class="block text-sm font-medium text-gray-700">Código
+                            Carrera:</label>
+                        <input type="number" id="codigoCarrera" th:field="*{codigoCarrera}"
+                               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                            Crear
+                        </button>
+                        <button type="button" onclick="document.getElementById('miModal').classList.add('hidden')"
+                                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
+                            Cerrar
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <table class="min-w-full table-auto text-sm text-left text-gray-700">
+            <thead class="bg-gray-200 text-gray-600 uppercase text-xs">
+            <tr>
+                <th class="px-6 py-3">DNI</th>
+                <th class="px-6 py-3">Nombres</th>
+                <th class="px-6 py-3">Apellidos</th>
+                <th class="px-6 py-3">Género</th>
+                <th class="px-6 py-3">Código Carrera</th>
+                <th class="px-6 py-3">Ubigeo</th>
+                <th class="px-6 py-3">Fecha Registro</th>
+                <th class="px-6 py-3">Usuario Registro</th>
+                <th class="px-6 py-3">Fecha ultima Modificacion</th>
+                <th class="px-6 py-3">Usuario ultima Modificacion</th>
+                <th class="px-6 py-3">Activo</th>
+                <th class="px-6 py-3">Operaciones</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            <tr th:each="alumno : ${alumnos.content}">
+                <td class="px-6 py-4" th:text="${alumno.dniAlum}"></td>
+                <td class="px-6 py-4" th:text="${alumno.nombres}"></td>
+                <td class="px-6 py-4" th:text="${alumno.apellidos}"></td>
+                <td class="px-6 py-4" th:text="${alumno.genero}"></td>
+                <td class="px-6 py-4" th:text="${alumno.codigoCarrera}"></td>
+                <td class="px-6 py-4"
+                    th:text="${alumno.ubigeo.idDepa+''+alumno.ubigeo.idProv+''+alumno.ubigeo.idDist}"></td>
+                <td class="px-6 py-4" th:text="${#temporals.format(alumno.fechaRegistro, 'dd/MM/yyyy HH:mm')}">
+                </td>
+                <td class="px-6 py-4" th:text="${alumno.usuarioRegistro}"></td>
+                <td class="px-6 py-4"
+                    th:text="${#temporals.format(alumno.fechaUltModificacion, 'dd/MM/yyyy HH:mm')}"></td>
+                <td class="px-6 py-4" th:text="${alumno.usuarioUltModificacion}"></td>
+                <td class="px-6 py-4" th:text="${alumno.activo} ? 'Sí' : 'No'"></td>
+                <td class="px-6 py-4 flex space-x-2">
+                    <button
+                            th:attr="onclick=|document.getElementById('modalEditar${alumno.dniAlum}').classList.remove('hidden')|"
+                            class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+                        Editar
+                    </button>
+
+                    <div th:id="'modalEditar' + ${alumno.dniAlum}" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50">
+                        <div class="bg-white rounded-lg shadow-lg w-96 p-6 relative">
+                            <h2 class="text-xl font-bold mb-4" th:text="'Editar Alumno ' + ${alumno.dniAlum}"></h2>
+
+                            <form th:action="@{/alumnos/editar/{dni}(dni=${alumno.dniAlum})}" th:object="${newAlumno}" method="post" class="space-y-4">
+                                <div>
+                                    <label for="nombres" class="block text-sm font-medium text-gray-700">Nombres:</label>
+                                    <input type="text" id="nombres" name="nombres" th:value="${alumno.nombres}"
+                                           class="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" required />
+                                </div>
+
+                                <div>
+                                    <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos:</label>
+                                    <input type="text" id="apellidos" name="apellidos" th:value="${alumno.apellidos}"
+                                           class="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" required />
+                                </div>
+
+                                <div>
+                                    <label for="genero" class="block text-sm font-medium text-gray-700">Género:</label>
+                                    <select id="genero" name="genero"
+                                            class="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" required>
+                                        <option value="" th:selected="${alumno.genero == null}">Seleccione</option>
+                                        <option value="Masculino" th:selected="${alumno.genero == 'Masculino'}">Masculino</option>
+                                        <option value="Femenino" th:selected="${alumno.genero == 'Femenino'}">Femenino</option>
+                                        <option value="Otro" th:selected="${alumno.genero == 'Otro'}">Otro</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="idUbigeo" class="block text-sm font-medium text-gray-700">Ubigeo:</label>
+                                    <select id="idUbigeo" name="ubigeo.idUbigeo"
+                                            class="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" required>
+                                        <option value="" th:selected="${alumno.ubigeo == null}">Seleccione</option>
+                                        <option th:each="u : ${ubigeos}" th:value="${u.idUbigeo}"
+                                                th:text="${u.departamento + ' - ' + u.provincia + ' - ' + u.distrito}"
+                                                th:selected="${alumno.ubigeo != null} ? ${u.idUbigeo} == ${alumno.ubigeo.idUbigeo} : false">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="codigoCarrera" class="block text-sm font-medium text-gray-700">Código Carrera:</label>
+                                    <input type="number" id="codigoCarrera" name="codigoCarrera" th:value="${alumno.codigoCarrera}"
+                                           class="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200" />
+                                </div>
+
+                                <div class="flex justify-end space-x-4 pt-4">
+                                    <button type="submit"
+                                            class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition">
+                                        Guardar Cambios
+                                    </button>
+                                    <button type="button" th:attr="onclick=|document.getElementById('modalEditar${alumno.dniAlum}').classList.add('hidden')|"
+                                            class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 transition">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/alumnos/eliminar/{dni}(dni=${alumno.dniAlum})}" method="post"
+                          onsubmit="return confirm('¿Deseas eliminar este alumno?');">
+                        <button type="submit" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                            Eliminar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="">
+        <nav class="flex justify-end">
+            <ul class="inline-flex -space-x-px text-sm">
+                <li th:if="${currentPage > 0}">
+                    <a th:href="@{/alumnos(page=${currentPage - 1}, size=10)}"
+                       class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
+                        Anterior
+                    </a>
+                </li>
+
+                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:href="@{/alumnos(page=${i}, size=10)}"
+                       th:classappend="${i == currentPage} ? 'text-blue-600 bg-blue-100 hover:bg-blue-200 hover:text-blue-700' : 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700'"
+                       class="px-3 py-2 leading-tight border border-gray-300">
+                        <span th:text="${i + 1}"></span>
+                    </a>
+                </li>
+
+                <li th:if="${currentPage < totalPages - 1}">
+                    <a th:href="@{/alumnos(page=${currentPage + 1}, size=10)}"
+                       class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
+                        Siguiente
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>

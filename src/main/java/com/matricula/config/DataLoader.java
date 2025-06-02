@@ -1,13 +1,8 @@
 package com.matricula.config;
 
-import com.matricula.entity.Carrera;
-import com.matricula.entity.Docente;
-import com.matricula.entity.Ubigeo;
-import com.matricula.entity.UserAccount;
-import com.matricula.repository.CarreraRepository;
-import com.matricula.repository.DocenteRepository;
-import com.matricula.repository.UbigeoRepository;
-import com.matricula.repository.UserRepository;
+import com.github.javafaker.Faker;
+import com.matricula.entity.*;
+import com.matricula.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
@@ -19,7 +14,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,13 +26,17 @@ public class DataLoader implements CommandLineRunner {
     private final CarreraRepository carreraRepo;
     private final DocenteRepository docenteRepo;
     private final PasswordEncoder passwordEncoder;
+    private final AlumnoRepository alumnoRepository;
+    private final CursoRepository cursoRepository;
 
-    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder) {
+    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder, AlumnoRepository alumnoRepository, CursoRepository cursoRepository) {
         this.ubigeoRepo = ubigeoRepo;
         this.userRepo = userRepo;
         this.carreraRepo = carreraRepo;
         this.docenteRepo = docenteRepo;
         this.passwordEncoder = passwordEncoder;
+        this.alumnoRepository = alumnoRepository;
+        this.cursoRepository = cursoRepository;
     }
 
     @Override
@@ -47,6 +46,8 @@ public class DataLoader implements CommandLineRunner {
         loadUbigeos();
         loadCarreras();
         loadDocentes();
+        loadAlumnos();
+        loadCursos();
     }
 
     private void loadUsers() {
@@ -157,4 +158,124 @@ public class DataLoader implements CommandLineRunner {
             docenteRepo.saveAll(lista);
         }
     }
+
+    private void loadAlumnos() {
+        if (alumnoRepository.count() > 0) {
+            return;
+        }
+
+        Ubigeo ubigeo = ubigeoRepo.findAll().stream().findFirst()
+                .orElseThrow(() -> new IllegalStateException("No hay ubigeos cargados"));
+
+        Faker faker = new Faker(new Locale("es", "PE"));
+        List<Alumno> alumnos = new ArrayList<>();
+
+        for (int i = 1; i <= 55; i++) {
+            Alumno alumno = new Alumno();
+            alumno.setDniAlum(String.format("%09d", faker.number().numberBetween(100000000, 999999999)));
+            alumno.setNombres(faker.name().firstName() + " " + faker.name().firstName());
+            alumno.setApellidos(faker.name().lastName() + " " + faker.name().lastName());
+            alumno.setGenero(i % 2 == 0 ? "Masculino" : "Femenino");
+            alumno.setUbigeo(ubigeo);
+            alumno.setCodigoCarrera(100L + (i % 5)); // 100 a 104
+            alumno.setFechaRegistro(LocalDateTime.now());
+            alumno.setUsuarioRegistro("Faker");
+            alumno.setFechaUltModificacion(LocalDateTime.now());
+            alumno.setUsuarioUltModificacion("Faker");
+            alumno.setActivo(true);
+            alumnos.add(alumno);
+        }
+
+        alumnoRepository.saveAll(alumnos);
+    }
+
+    private void loadCursos() {
+        if (cursoRepository.count() > 0) {
+            return;
+        }
+
+        Faker faker = new Faker(new Locale("es", "PE"));
+        List<Curso> cursos = new ArrayList<>();
+
+        // Nombres de carreras para usar con los códigos
+        Map<Integer, String> carreras = new HashMap<>();
+        carreras.put(1, "Ingeniería de Sistemas");
+        carreras.put(2, "Administración de Empresas");
+        carreras.put(3, "Contabilidad");
+        carreras.put(4, "Marketing");
+        carreras.put(5, "Ingeniería Industrial");
+        carreras.put(6, "Arquitectura");
+        carreras.put(7, "Psicología");
+        carreras.put(8, "Derecho");
+        carreras.put(9, "Medicina");
+        carreras.put(10, "Enfermería");
+        carreras.put(11, "Odontología");
+        carreras.put(12, "Ingeniería Civil");
+        carreras.put(13, "Ingeniería Mecánica");
+        carreras.put(14, "Ingeniería Eléctrica");
+        carreras.put(15, "Ingeniería Química");
+        carreras.put(16, "Comunicaciones");
+        carreras.put(17, "Diseño Gráfico");
+        carreras.put(18, "Economía");
+        carreras.put(19, "Turismo");
+        carreras.put(20, "Gastronomía");
+        carreras.put(21, "Educación");
+        carreras.put(22, "Música");
+        carreras.put(23, "Artes Plásticas");
+
+        // Nombres base de cursos
+        String[] basesCursos = {
+                "Fundamentos de", "Introducción a", "Taller de", "Metodología de",
+                "Análisis de", "Diseño de", "Gestión de", "Teoría de",
+                "Práctica de", "Laboratorio de", "Seminario de", "Proyecto de",
+                "Desarrollo de", "Evaluación de", "Investigación en", "Técnicas de",
+                "Sistemas de", "Procesos de", "Estrategias de", "Planificación de"
+        };
+
+        // Complementos para nombres de cursos
+        String[] complementosCursos = {
+                "la Programación", "los Negocios", "la Investigación", "la Comunicación",
+                "Proyectos", "Sistemas", "la Calidad", "la Innovación",
+                "Desarrollo", "Marketing", "Tecnología", "Administración",
+                "Diseño", "Procesos", "Gestión", "Estrategia",
+                "Evaluación", "Metodología", "Planificación", "Optimización"
+        };
+
+        for (int i = 0; i < 20; i++) {
+            Curso curso = new Curso();
+
+            // Generar código de curso (ejemplo: CUR001)
+            String codigoCurso = String.format("CUR%03d", i + 1);
+            curso.setCodCurso(codigoCurso);
+
+            // Asignar código de carrera aleatorio (1-23)
+            Short codCarrera = (short) faker.number().numberBetween(1, 24);
+            curso.setCodCarrera(codCarrera);
+
+            // Asignar nombre de carrera correspondiente
+            curso.setNomCarrera(carreras.get(codCarrera.intValue()));
+
+            // Generar nombre de curso combinando bases y complementos
+            String nombreCurso = basesCursos[i] + " " + complementosCursos[i];
+            curso.setNomCurso(nombreCurso);
+
+            // Asignar créditos aleatorios (1-5)
+            curso.setCreditos(faker.number().numberBetween(1, 6));
+
+            // Asignar ciclo (1-10)
+            curso.setCiclo((short) faker.number().numberBetween(1, 11));
+
+            // Datos de auditoría
+            curso.setFechaRegistro(LocalDateTime.now());
+            curso.setUsuarioRegistro("Faker");
+            curso.setFechaUltModificacion(LocalDateTime.now());
+            curso.setUsuarioUltModificacion("Faker");
+            curso.setEstadoCurso(true);
+
+            cursos.add(curso);
+        }
+
+        cursoRepository.saveAll(cursos);
+    }
+
 }
