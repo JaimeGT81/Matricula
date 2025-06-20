@@ -7,92 +7,154 @@ import com.matricula.entity.Ubigeo;
 import com.matricula.repository.CarreraRepository;
 import com.matricula.repository.DocenteRepository;
 import com.matricula.repository.UbigeoRepository;
+import com.matricula.service.BaseService;
 import com.matricula.service.DocenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 public class DocenteServiceImpl implements DocenteService {
 
-    @Autowired
-    private DocenteRepository docenteRepository;
+    private final DocenteRepository docenteRepository;
+    private final UbigeoRepository ubigeoRepository;
+    private final CarreraRepository carreraRepository;
+    private final BaseService<Docente, String> baseService;
 
     @Autowired
-    private UbigeoRepository ubigeoRepository;
+    public DocenteServiceImpl(DocenteRepository docenteRepository,
+                              UbigeoRepository ubigeoRepository,
+                              CarreraRepository carreraRepository) {
+        this.docenteRepository = docenteRepository;
+        this.ubigeoRepository  = ubigeoRepository;
+        this.carreraRepository = carreraRepository;
 
-    @Autowired
-    private CarreraRepository carreraRepository;
+        // Inicializamos aquí nuestro BaseService con la lógica de soft-delete/versionado
+        this.baseService = new BaseServiceImpl<Docente, String>(docenteRepository) {
+            @Override
+            protected Docente createNewVersion(Docente entity) {
+                Docente copy = new Docente();
+                copy.setDniDocente(entity.getDniDocente());
+                copy.setFotoDocente(entity.getFotoDocente());
+                copy.setNombreDoc(entity.getNombreDoc());
+                copy.setApellidoDoc(entity.getApellidoDoc());
+                copy.setGeneroDoc(entity.getGeneroDoc());
+                copy.setFechaNacimiento(entity.getFechaNacimiento());
+                copy.setCelularDoc(entity.getCelularDoc());
+                copy.setUbigeo(entity.getUbigeo());
+                copy.setCarrera(entity.getCarrera());
+                copy.setDireccionDomicilio(entity.getDireccionDomicilio());
+                return copy;
+            }
+        };
+    }
+
+    @Override
+    public Docente save(Docente entity, String username) {
+        // Retornamos el Docente guardado por baseService
+        return baseService.save(entity, username);
+    }
+
+    @Override
+    public void softDelete(String id, String username) {
+        baseService.softDelete(id, username);
+    }
+
+    @Override
+    public Docente reactivate(String id, String username) {
+        return baseService.reactivate(id, username);
+    }
+
+    @Override
+    public Page<Docente> findAllActive(Pageable pageable) {
+        return baseService.findAllActive(pageable);
+    }
+
+    @Override
+    public Page<Docente> findAllInactive(Pageable pageable) {
+        return baseService.findAllInactive(pageable);
+    }
 
     @Override
     public Page<DocenteDto> findAll(String dni, String nombre, String apellido, Pageable pageable) {
-        Page<Docente> docentes = docenteRepository.findByDniDocenteStartingWithIgnoreCaseAndNombreDocStartingWithIgnoreCaseAndApellidoDocStartingWithIgnoreCase(dni,nombre,apellido,pageable);
-        return docentes.map(this::ConvertToDocenteDto);
+        Page<Docente> page = docenteRepository
+                .findByDniDocenteStartingWithIgnoreCaseAndNombreDocStartingWithIgnoreCaseAndApellidoDocStartingWithIgnoreCase(
+                        dni, nombre, apellido, pageable
+                );
+        return page.map(this::convertToDto);
+    }
+
+    @Override
+    public Page<DocenteDto> findAllActive(String dni, String nombre, String apellido, Pageable pageable) {
+        Page<Docente> page = docenteRepository
+                .findByDniDocenteStartingWithIgnoreCaseAndNombreDocStartingWithIgnoreCaseAndApellidoDocStartingWithIgnoreCaseAndEstadoTrue(
+                        dni, nombre, apellido, pageable
+                );
+        return page.map(this::convertToDto);
     }
 
     @Override
     public DocenteDto findById(String dni) {
-        Optional<Docente> docente = docenteRepository.findById(dni);
-        return docente.map(this::ConvertToDocenteDto).orElse(null);
+        Optional<Docente> opt = docenteRepository.findById(dni);
+        return opt.map(this::convertToDto).orElse(null);
     }
 
     @Override
-    public void save(DocenteDto docenteDto) {
-        Docente docente = this.ConvertToDocente(docenteDto);
-        docenteRepository.save(docente);
+    public void save(DocenteDto dto) {
+        Docente entidad = convertToEntity(dto);
+        docenteRepository.save(entidad);
     }
 
     @Override
     public void deleteById(String dni) {
-        Optional<Docente> docente = docenteRepository.findById(dni);
-        docente.ifPresent(d -> docenteRepository.delete(d));
+        docenteRepository.findById(dni)
+                .ifPresent(docenteRepository::delete);
     }
 
-    /* Mapear el docente a un DocenteDto */
-    private DocenteDto ConvertToDocenteDto(Docente docente){
-        DocenteDto docenteDto = new DocenteDto();
-        docenteDto.setDni(docente.getDniDocente());
-        docenteDto.setFotoActual(docente.getFotoDocente());
-        docenteDto.setNombre(docente.getNombreDoc());
-        docenteDto.setApellido(docente.getApellidoDoc());
-        docenteDto.setGenero(docente.getGeneroDoc());
-        docenteDto.setFechaNacimiento(docente.getFechaNacimiento());
-        docenteDto.setCelular(docente.getCelularDoc());
-        docenteDto.setUbigeo(docente.getUbigeo().getIdUbigeo());
-        docenteDto.setCarreraId(docente.getCarrera().getId());
-        docenteDto.setCarreraNombre(docente.getCarrera().getNombre());
-        docenteDto.setDireccion(docente.getDireccionDomicilio());
-        docenteDto.setFechaRegistro(docente.getFechaRegistro());
-        docenteDto.setUsuarioRegistro(docente.getUsuarioRegistro());
-        docenteDto.setFechaModificacion(docente.getFechaUltModificacion());
-        docenteDto.setUsuarioModficacion(docente.getUsuarioUltModificacion());
-        docenteDto.setEstado(docente.getEstadoDoc());
-        return docenteDto;
+    // --- Métodos privados de mapeo ---
+
+    private DocenteDto convertToDto(Docente d) {
+        DocenteDto dto = new DocenteDto();
+        dto.setDni(d.getDniDocente());
+        dto.setFotoActual(d.getFotoDocente());
+        dto.setNombre(d.getNombreDoc());
+        dto.setApellido(d.getApellidoDoc());
+        dto.setGenero(d.getGeneroDoc());
+        dto.setFechaNacimiento(d.getFechaNacimiento());
+        dto.setCelular(d.getCelularDoc());
+        dto.setUbigeo(d.getUbigeo().getIdUbigeo());
+        dto.setCarreraId(d.getCarrera().getId());
+        dto.setCarreraNombre(d.getCarrera().getNombre());
+        dto.setDireccion(d.getDireccionDomicilio());
+        dto.setFechaRegistro(d.getFechaRegistro());
+        dto.setUsuarioRegistro(d.getUsuarioRegistro());
+        dto.setFechaModificacion(d.getFechaUltModificacion());
+        dto.setUsuarioModficacion(d.getUsuarioUltModificacion());
+        dto.setEstado(d.getEstadoDoc());
+        return dto;
     }
 
-    /* Mapear el DocenteDto a un docente */
-    private Docente ConvertToDocente(DocenteDto docenteDto){
-        Docente docente = new Docente();
-        docente.setDniDocente( docenteDto.getDni());
-        docente.setFotoDocente(docenteDto.getFotoActual());
-        docente.setNombreDoc(docenteDto.getNombre());
-        docente.setApellidoDoc(docenteDto.getApellido());
-        docente.setGeneroDoc(docenteDto.getGenero());
-        docente.setFechaNacimiento(docenteDto.getFechaNacimiento());
-        docente.setCelularDoc(docenteDto.getCelular());
-        Optional<Ubigeo> ubigeo = ubigeoRepository.findById(docenteDto.getUbigeo());
-        ubigeo.ifPresent(docente::setUbigeo);
-        Optional<Carrera> carrera = carreraRepository.findById(docenteDto.getCarreraId());
-        carrera.ifPresent(docente::setCarrera);
-        docente.setDireccionDomicilio(docenteDto.getDireccion());
-        docente.setFechaRegistro(docenteDto.getFechaRegistro());
-        docente.setUsuarioRegistro(docenteDto.getUsuarioRegistro());
-        docente.setUsuarioUltModificacion(docenteDto.getUsuarioModficacion());
-        docente.setFechaUltModificacion(docenteDto.getFechaModificacion());
-        docente.setEstadoDoc(docenteDto.getEstado());
-        return docente;
+    private Docente convertToEntity(DocenteDto dto) {
+        Docente d = new Docente();
+        d.setDniDocente(dto.getDni());
+        d.setFotoDocente(dto.getFotoActual());
+        d.setNombreDoc(dto.getNombre());
+        d.setApellidoDoc(dto.getApellido());
+        d.setGeneroDoc(dto.getGenero());
+        d.setFechaNacimiento(dto.getFechaNacimiento());
+        d.setCelularDoc(dto.getCelular());
+        ubigeoRepository.findById(dto.getUbigeo()).ifPresent(d::setUbigeo);
+        carreraRepository.findById(dto.getCarreraId()).ifPresent(d::setCarrera);
+        d.setDireccionDomicilio(dto.getDireccion());
+        d.setFechaRegistro(dto.getFechaRegistro());
+        d.setUsuarioRegistro(dto.getUsuarioRegistro());
+        d.setFechaUltModificacion(dto.getFechaModificacion());
+        d.setUsuarioUltModificacion(dto.getUsuarioModficacion());
+        d.setEstadoDoc(dto.getEstado());
+        return d;
     }
 }

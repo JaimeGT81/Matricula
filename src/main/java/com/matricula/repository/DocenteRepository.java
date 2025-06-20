@@ -8,6 +8,11 @@ import org.springframework.stereotype.Repository;
 
 /* JPA para la entidad Docente */
 @Repository
-public interface DocenteRepository extends JpaRepository<Docente, String> {
-    Page<Docente> findByDniDocenteStartingWithIgnoreCaseAndNombreDocStartingWithIgnoreCaseAndApellidoDocStartingWithIgnoreCase(String dni, String nombre, String apellido, Pageable pageable);
+public interface DocenteRepository extends BaseRepository<Docente, String> {
+    Page<Docente> findByDniDocenteStartingWithIgnoreCaseAndNombreDocStartingWithIgnoreCaseAndApellidoDocStartingWithIgnoreCase(
+            String dni, String nombre, String apellido, Pageable pageable
+    );
+    Page<Docente> findByDniDocenteStartingWithIgnoreCaseAndNombreDocStartingWithIgnoreCaseAndApellidoDocStartingWithIgnoreCaseAndEstadoTrue(
+            String dni, String nombre, String apellido, Pageable pageable
+    );
 }
