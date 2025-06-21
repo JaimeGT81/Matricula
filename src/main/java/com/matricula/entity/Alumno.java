@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "alumno")
-public class Alumno {
+public class Alumno extends BaseEntity {
 
     @Id
     @Column(name = "dni", length = 20)
