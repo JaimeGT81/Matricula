@@ -2,6 +2,7 @@ package com.matricula.controller;
 
 import com.matricula.entity.Curso;
 import com.matricula.repository.CursoRepository;
+import com.matricula.service.CursoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,54 +17,65 @@ import java.time.LocalDateTime;
 @Controller
 public class CursoController {
 
+    private final CursoService cursoService;
+
     @Autowired
-    private CursoRepository cursoRepository;
+    public CursoController(CursoService cursoService) {
+        this.cursoService = cursoService;
+    }
 
     @GetMapping("/cursos")
-    public String curso(
-            Model model,
-            @RequestParam(defaultValue = "") String codigoCurso,
-            @RequestParam(defaultValue = "") String nombreCurso,
-            @RequestParam(defaultValue = "0") int creditos,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Curso> cursos = cursoRepository.findByCriteria(codigoCurso, nombreCurso, creditos, pageable);
-
-        model.addAttribute("cursos", cursos);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", cursos.getTotalPages());
+    public String listCursos(Model model,
+                             @RequestParam(defaultValue="0") int page,
+                             @RequestParam(defaultValue="8") int size) {
+        Pageable p = PageRequest.of(page, size);
+        Page<Curso> pageCursos = cursoService.findAllActive(p);
+        model.addAttribute("cursos", pageCursos);
         model.addAttribute("newCurso", new Curso());
-
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageCursos.getTotalPages());
         return "cursos";
     }
 
     @PostMapping("/cursos")
     public String crearCurso(@ModelAttribute Curso curso, Principal principal) {
-        curso.setFechaRegistro(LocalDateTime.now());
+        LocalDateTime ahora = LocalDateTime.now();
+
+        curso.setFechaRegistro(ahora);
         curso.setUsuarioRegistro(principal.getName());
-        curso.setFechaUltModificacion(LocalDateTime.now());
+        curso.setFechaUltModificacion(ahora);
         curso.setUsuarioUltModificacion(principal.getName());
         curso.setEstadoCurso(true);
 
-        cursoRepository.save(curso);
+        // Llamada al servicio en lugar de repo.save()
+        cursoService.save(curso, principal.getName());
         return "redirect:/cursos";
     }
 
     @PostMapping("/cursos/editar/{codigo}")
-    public String actualizarCurso(@ModelAttribute Curso curso, @PathVariable String codigo, Principal principal) {
+    public String actualizarCurso(@ModelAttribute Curso curso,
+                                  @PathVariable("codigo") String codigo,
+                                  Principal principal) {
+        LocalDateTime ahora = LocalDateTime.now();
+
         curso.setCodCurso(codigo);
-        curso.setFechaUltModificacion(LocalDateTime.now());
+        curso.setFechaUltModificacion(ahora);
         curso.setUsuarioUltModificacion(principal.getName());
 
-        cursoRepository.save(curso);
+        // Ahora usamos el servicio para versionar correctamente
+        cursoService.save(curso, principal.getName());
         return "redirect:/cursos";
     }
 
     @PostMapping("/cursos/eliminar/{codigo}")
-    public String eliminarCurso(@PathVariable String codigo) {
-        cursoRepository.deleteById(codigo);
+    public String deleteCurso(@PathVariable String codigo, Principal principal) {
+        cursoService.softDelete(codigo, principal.getName());
+        return "redirect:/cursos";
+    }
+
+    @PostMapping("/cursos/reactivar/{codigo}")
+    public String undoDeleteCurso(@PathVariable String codigo, Principal principal) {
+        cursoService.reactivate(codigo, principal.getName());
         return "redirect:/cursos";
     }
 

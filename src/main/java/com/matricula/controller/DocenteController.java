@@ -23,17 +23,21 @@ import java.time.LocalDateTime;
 @RequestMapping("/docentes")
 public class DocenteController {
 
-    @Autowired
-    private DocenteService docenteService;
+    private final DocenteService docenteService;
+    private final CarreraRepository carreraRepository;
+    private final UbigeoRepository ubigeoRepository;
+    private final UploadFileService uploadFileService;
 
     @Autowired
-    private CarreraRepository carreraRepository;
-
-    @Autowired
-    private UbigeoRepository ubigeoRepository;
-
-    @Autowired
-    private UploadFileService uploadFileService;
+    public DocenteController(DocenteService docenteService,
+                             CarreraRepository carreraRepository,
+                             UbigeoRepository ubigeoRepository,
+                             UploadFileService uploadFileService) {
+        this.docenteService    = docenteService;
+        this.carreraRepository = carreraRepository;
+        this.ubigeoRepository  = ubigeoRepository;
+        this.uploadFileService = uploadFileService;
+    }
 
     @GetMapping
     private String listDocentes(Model model,
@@ -43,7 +47,7 @@ public class DocenteController {
                                 @RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "8") int size){
         Pageable pageable = PageRequest.of(page, size);
-        Page<DocenteDto> docenteListDtos = docenteService.findAll(dni,nombre,apellido,pageable);
+        Page<DocenteDto> docenteListDtos = docenteService.findAllActive(dni,nombre,apellido,pageable);
         model.addAttribute("docentes",docenteListDtos);
         model.addAttribute("currentPage",page);
         model.addAttribute("totalPages",docenteListDtos.getTotalPages());
@@ -105,15 +109,29 @@ public class DocenteController {
         return "redirect:/docentes";
     }
 
+    /**
+     * Soft delete: marca como inactivo en lugar de borrar físicamente
+     */
     @PostMapping("/eliminar/{dni}")
-    private String deleteDocente(@PathVariable String dni){
-        DocenteDto docenteDto = docenteService.findById(dni);
-        if(docenteDto != null){
-            if(docenteDto.getFotoActual() != null){
-                uploadFileService.delete(docenteDto.getFotoActual(),"docente");
-            }
-            docenteService.deleteById(docenteDto.getDni());
+    public String deleteDocente(@PathVariable String dni,
+                                Principal principal) {
+        // Si la foto debe borrarse al hacer soft-delete, mantenlo aquí.
+        DocenteDto dto = docenteService.findById(dni);
+        if (dto != null && dto.getFotoActual() != null) {
+            uploadFileService.delete(dto.getFotoActual(), "docente");
         }
+        // Llamamos a softDelete en lugar de deleteById
+        docenteService.softDelete(dni, principal.getName());
+        return "redirect:/docentes";
+    }
+
+    /**
+     * (Opcional) Reactivar registro eliminado
+     */
+    @PostMapping("/reactivar/{dni}")
+    public String reactivateDocente(@PathVariable String dni,
+                                    Principal principal) {
+        docenteService.reactivate(dni, principal.getName());
         return "redirect:/docentes";
     }
 }

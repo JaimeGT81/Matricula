@@ -2,6 +2,7 @@ package com.matricula.controller;
 
 import java.time.LocalDateTime;
 
+import com.matricula.service.AlumnoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,11 +23,14 @@ import java.security.Principal;
 @Controller
 public class AlumnoController {
 
-    @Autowired
-    private AlumnoRepository alumnoRepository;
+    private final AlumnoService alumnoService;
+    private final UbigeoRepository ubigeoRepository;
 
     @Autowired
-    private UbigeoRepository ubigeoRepository;
+    public AlumnoController(AlumnoService alumnoService, UbigeoRepository ubigeoRepository) {
+        this.alumnoService = alumnoService;
+        this.ubigeoRepository = ubigeoRepository;
+    }
 
     @GetMapping({"/alumnos"})
     public String alumno(
@@ -38,14 +42,11 @@ public class AlumnoController {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Alumno> alumnos = alumnoRepository
-                .findByDniAlumStartingWithIgnoreCaseAndNombresStartingWithIgnoreCaseAndApellidosStartingWithIgnoreCase(
-                        dni, nombres, apellidos, pageable);
+        Page<Alumno> alumnos = alumnoService.findAllActive(pageable);
 
         model.addAttribute("alumnos", alumnos);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", alumnos.getTotalPages());
-
         model.addAttribute("newAlumno", new Alumno());
         model.addAttribute("ubigeos", ubigeoRepository.findAll());
         return "alumnos";
@@ -54,32 +55,22 @@ public class AlumnoController {
     @PostMapping("/alumnos")
     public String crearAlumno(@ModelAttribute Alumno alumno, Principal principal) {
 
-        // Aquí puedes inicializar campos como fechaRegistro, usuarioRegistro, activo, etc.
-        alumno.setFechaRegistro(LocalDateTime.now());
-        alumno.setUsuarioRegistro(principal.getName()); // Cambia por usuario real si tienes seguridad
-        alumno.setFechaUltModificacion(LocalDateTime.now());
-        alumno.setUsuarioUltModificacion(principal.getName());
-        alumno.setActivo(true);
-
-        alumnoRepository.save(alumno);
-
+        alumno.setEstado(true);
+        alumnoService.save(alumno, principal.getName());
         return "redirect:/alumnos"; // Redirige a la lista después de crear
     }
 
     @PostMapping("/alumnos/editar/{dni}")
     public String actualizarAlumno(@ModelAttribute Alumno alumno, @PathVariable String dni, Principal principal) {
         alumno.setDniAlum(dni);
-        alumno.setFechaUltModificacion(LocalDateTime.now());
-        alumno.setUsuarioUltModificacion(principal.getName()); // Reemplaza por el usuario real
-
-        alumnoRepository.save(alumno); // save() funciona como update si el ID existe
+        alumnoService.save(alumno, principal.getName()); // save() funciona como update si el ID existe
 
         return "redirect:/alumnos";
     }
 
     @PostMapping("/alumnos/eliminar/{dni}")
-    public String eliminarAlumno(@PathVariable String dni) {
-        alumnoRepository.deleteById(dni);
+    public String eliminarAlumno(@PathVariable String dni, Principal principal) {
+        alumnoService.softDelete(dni,principal.getName());
         return "redirect:/alumnos";
     }
 }
