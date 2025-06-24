@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secciones - Sistema de Matrícula</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body>
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div class="flex flex-col space-y-6">
+        <!-- TITULO PRINCIPAL -->
+        <div class="text-center">
+            <h1 class="text-5xl font-bold text-gray-800 mb-2">Gestión de Secciones</h1>
+        </div>
+
+        <!-- BARRA DE BÚSQUEDA -->
+        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+            <form method="GET" th:action="@{/secciones}" class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">NRC</label>
+                        <input type="text" name="nrc" placeholder="Buscar por NRC" th:value="${param.nrc}" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button type="submit"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition whitespace-nowrap flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Buscar
+                    </button>
+
+                    <button type="button" onclick="document.getElementById('miModal').classList.remove('hidden')"
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition whitespace-nowrap flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Nuevo
+                    </button>
+
+                    <a th:href="@{/secciones}" type="button" class="px-6 py-2 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 transition whitespace-nowrap flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="#ffffff" height="14px" width="14px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489.533 489.533" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M268.175,488.161c98.2-11,176.9-89.5,188.1-187.7c14.7-128.4-85.1-237.7-210.2-239.1v-57.6c0-3.2-4-4.9-6.7-2.9 l-118.6,87.1c-2,1.5-2,4.4,0,5.9l118.6,87.1c2.7,2,6.7,0.2,6.7-2.9v-57.5c87.9,1.4,158.3,76.2,152.3,165.6 c-5.1,76.9-67.8,139.3-144.7,144.2c-81.5,5.2-150.8-53-163.2-130c-2.3-14.3-14.8-24.7-29.2-24.7c-17.9,0-31.9,15.9-29.1,33.6 C49.575,418.961,150.875,501.261,268.175,488.161z"></path> </g> </g></svg>
+                        Refrescar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- NUEVO MODAL -->
+        <div id="miModal" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50 overflow-y-auto">
+            <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 p-6 relative my-8 max-h-[100vh] overflow-y-auto">
+                <h2 class="text-xl font-bold mb-4">Nueva Sección</h2>
+                <form th:action="@{/secciones}" th:object="${newSeccion}" method="POST" class="space-y-4 grid grid-cols-1 md:grid-cols-1 gap-4">
+                    <div class="primerPasoDiv grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="nrc" class="block text-sm font-medium text-gray-700">NRC:</label>
+                                <input type="text" id="nrc" th:field="*{nrc}" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                            </div>
+
+                            <div>
+                                <label for="curso" class="block text-sm font-medium text-gray-700">Curso:</label>
+                                <select id="curso" th:field="*{codCurso}" required
+                                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="" disabled selected>Seleccione</option>
+                                    <option th:each="c : ${cursos}" th:value="${c.codCurso}" th:text="${c.nomCurso}"> </option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="docente" class="block text-sm font-medium text-gray-700">Docente:</label>
+                                <select id="docente" th:field="*{dniDocente}" required
+                                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="" disabled selected>Seleccione</option>
+                                    <option th:each="d : ${docentes}" th:value="${d.dniDocente}" th:text="${d.nombreDoc +' '+ d.apellidoDoc}"> </option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="aula" class="block text-sm font-medium text-gray-700">Aula:</label>
+                                <input type="text" id="aula" th:field="*{idAulaDR}" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label for="fecha_inicio" class="block text-sm font-medium text-gray-700">Fecha Inicio:</label>
+                                <input type="date" id="fecha_inicio" th:field="*{fechaInicio}" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                            </div>
+
+                            <div>
+                                <label for="hora_inicio" class="block text-sm font-medium text-gray-700">Hora Inicio:</label>
+                                <input type="time" id="hora_inicio" th:field="*{horaInicio}" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                            </div>
+
+                            <div>
+                                <label for="hora_fin" class="block text-sm font-medium text-gray-700">Hora fin:</label>
+                                <input type="time" id="hora_fin" th:field="*{horaFin}" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                            </div>
+                            <div>
+                                <label for="modalidad" class="block text-sm font-medium text-gray-700">Modalidad:</label>
+                                <select id="modalidad" th:field="*{modalidad}" required
+                                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <option value="" disabled selected>Seleccione</option>
+                                    <option value="Presencial">Presencial</option>
+                                    <option value="Remoto">Remoto</option>
+                                    <option value="Virtual">Virtual</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- MENSAJE DE ERROR -->
+                        <div th:if="${mensajeErrorNuevo}" class="md:col-span-2 mb-4 p-3 bg-red-100 text-red-700 rounded">
+                            <span th:text="${mensajeErrorNuevo}"></span>
+                        </div>
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div class="col-span-full flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                        <button type="button"
+                                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition hidden btnAtras">
+                            Atrás
+                        </button>
+                        <button type="button"
+                                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition btnAlumnos">
+                            Añadir alumnos
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                            Crear
+                        </button>
+                        <button type="button" onclick="document.getElementById('miModal').classList.add('hidden')"
+                                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
+                            Cerrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NRC</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Curso</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Docente</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aula</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horario</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="secciones : ${secciones.content}" class="hover:bg-gray-50 transition duration-150 ease-in-out">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${secciones.nrc}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${secciones.codCurso}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${secciones.dniDocente}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${secciones.idAulaDR}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${secciones.diaSemana + ' ' + secciones.horaInicio  + ' - ' + secciones.horaFin}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span th:classappend="${secciones.estado} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                <span th:text="${secciones.estado} ? 'Activo':'Inactivo'"></span>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center space-x-2">
+                                <button
+                                        th:attr="onclick=|document.getElementById('modalEditar${secciones.nrc}').classList.remove('hidden')|"
+                                        class="inline-flex items-center px-3 py-1.5 border border-yellow-500 shadow-sm text-xs font-medium rounded-md text-yellow-700 bg-white hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                                    Editar
+                                </button>
+
+                                <!-- EDITAR MODAL -->
+                                <div th:id="'modalEditar' + ${secciones.nrc}" class="fixed inset-0 flex items-center justify-center bg-black/50 hidden z-50 overflow-y-auto">
+                                    <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 p-6 relative my-8 max-h-[100vh] overflow-y-auto">
+                                        <h2 class="text-xl font-bold mb-4" th:text="'Editar Sección ' + ${secciones.nrc}"></h2>
+
+                                        <form th:action="@{/secciones/editar/{nrc}(nrc=${secciones.nrc})}" th:object="${newSeccion}" method="post" class="space-y-4 grid grid-cols-1 md:grid-cols-1 gap-4">
+                                            <div class="primerPasoDiv grid grid-cols-1 gap-4">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div class="space-y-4">
+                                                        <div>
+                                                            <label for="curso_editar" class="block text-sm font-medium text-gray-700">Curso:</label>
+                                                            <select id="curso_editar" name="codCurso" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                                                <option value="" disabled>Seleccione</option>
+                                                                <option th:each="c : ${cursos}" th:value="${c.codCurso}" th:text="${c.nomCurso}" th:selected="${c.codCurso} == ${secciones.codCurso}"></option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div>
+                                                            <label for="docente_editar" class="block text-sm font-medium text-gray-700">Docente:</label>
+                                                            <select id="docente_editar" name="dniDocente" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                                                <option value="" disabled>Seleccione</option>
+                                                                <option th:each="d : ${docentes}" th:value="${d.dniDocente}" th:text="${d.nombreDoc +' '+ d.apellidoDoc}" th:selected="${d.dniDocente} == ${secciones.dniDocente}"></option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div>
+                                                            <label for="aula_editar" class="block text-sm font-medium text-gray-700">Aula:</label>
+                                                            <input type="text" id="aula_editar" name="idAulaDR" th:value="${secciones.idAulaDR}" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
+                                                        </div>
+
+                                                        <div>
+                                                            <label for="modalidad_editar" class="block text-sm font-medium text-gray-700">Modalidad:</label>
+                                                            <select id="modalidad_editar" name="modalidad" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                                                <option value="" disabled>Seleccione</option>
+                                                                <option value="Presencial" th:selected="${secciones.modalidad} == 'Presencial'">Presencial</option>
+                                                                <option value="Remoto" th:selected="${secciones.modalidad} == 'Remoto'">Remoto</option>
+                                                                <option value="Virtual" th:selected="${secciones.modalidad} == 'Virtual'">Virtual</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-4">
+                                                        <div>
+                                                            <label for="fecha_inicio_editar" class="block text-sm font-medium text-gray-700">Fecha Inicio:</label>
+                                                            <input type="date" id="fecha_inicio_editar" name="fechaInicio" th:value="${secciones.fechaInicio}" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
+                                                        </div>
+                                                        <div>
+                                                            <label for="hora_inicio_editar" class="block text-sm font-medium text-gray-700">Hora Inicio:</label>
+                                                            <input type="time" id="hora_inicio_editar" name="horaInicio" th:value="${secciones.horaInicio}" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
+                                                        </div>
+                                                        <div>
+                                                            <label for="hora_fin_editar" class="block text-sm font-medium text-gray-700">Hora Fin:</label>
+                                                            <input type="time" id="hora_fin_editar" name="horaFin" th:value="${secciones.horaFin}" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="space-y-4 border-t border-gray-200 pt-4">
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label for="fecha_registro" class="block text-sm font-medium text-gray-700">Fecha de Registro:</label>
+                                                            <input type="text" id="fecha_registro" name="fechaRegistro" th:value="${secciones.fechaRegistro}" readonly class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm bg-gray-100"/>
+                                                        </div>
+                                                        <div>
+                                                            <label for="usuario" class="block text-sm font-medium text-gray-700">Usuario:</label>
+                                                            <input type="text" id="usuario" name="usuarioRegistro" th:value="${secciones.usuarioRegistro}" readonly class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm bg-gray-100"/>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex items-center">
+                                                            <input type="checkbox" id="estado" name="estado" th:checked="${secciones != null} ? ${secciones.estado} : true" class="h-4 w-4 text-blue-600 border-gray-300 rounded"/>
+                                                            <label for="estado" class="ml-2 block text-sm font-medium text-gray-700">Estado Activo</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- MENSAJE DE ERROR -->
+                                                    <div th:if="${mensajeErrorEditar}" class="md:col-span-2 mb-4 p-3 bg-red-100 text-red-700 rounded">
+                                                        <span th:text="${mensajeErrorEditar}"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- BOTONES -->
+                                            <div class="col-span-full flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                                                <button type="button"
+                                                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition hidden btnAtras">
+                                                    Atrás
+                                                </button>
+                                                <button type="button"
+                                                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition btnAlumnos">
+                                                    Añadir alumnos
+                                                </button>
+                                                <button type="submit"
+                                                        class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition">
+                                                    Guardar Cambios
+                                                </button>
+                                                <button type="button" th:attr="onclick=|document.getElementById('modalEditar${secciones.nrc}').classList.add('hidden')|"
+                                                        class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 transition">
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <form th:action="@{/secciones/eliminar/{nrc}(nrc=${secciones.nrc})}" method="post" onsubmit="return confirm('¿Deseas eliminar esta Sección?');">
+                                    <button type="submit"
+                                            class="inline-flex items-center px-3 py-1.5 border border-red-500 shadow-sm text-xs font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CONTENEDOR DE PAGINACIÓN -->
+        <div class="flex items-center">
+            <div class="mr-auto">
+                <a th:href="@{/inicio}" class="px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Atrás
+                </a>
+            </div>
+
+            <div class="absolute left-1/2 transform -translate-x-1/2">
+                <nav class="inline-flex rounded-md shadow-sm -space-x-px">
+                    <ul class="inline-flex -space-x-px text-sm">
+                        <li th:if="${currentPage > 0}">
+                            <a th:href="@{/secciones(page=${currentPage - 1}, size=8, nrc=${nrc})}" class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                            <a th:href="@{/secciones(page=${i}, size=8, nrc=${nrc})}" th:classappend="${i == currentPage} ? 'text-blue-600 bg-blue-100 hover:bg-blue-200 hover:text-blue-700' : 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700'" class="px-3 py-2 leading-tight border border-gray-300">
+                                <span th:text="${i + 1}"></span>
+                            </a>
+                        </li>
+
+                        <li th:if="${currentPage < totalPages - 1}">
+                            <a th:href="@{/secciones(page=${currentPage + 1}, size=8, nrc=${nrc})}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
+                                Siguiente
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const model = {
+            nuevo : /*[[${abrirModalNuevo}]]*/ false,
+            editar: /*[[${abrirModalEditar}]]*/ false,
+            nrc: /*[[${nrcEditar}]]*/ null,
+        }
+
+        if (model.nuevo) {
+            document.getElementById('miModal').classList.remove('hidden');
+        }
+
+        if (model.editar && model.nrc) {
+            const modalId = 'modalEditar' + model.nrc;
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+            } else {
+                console.error('Modal no encontrado:', modalId);
+            }
+        }
+    });
+</script>
+</body>
+</html>

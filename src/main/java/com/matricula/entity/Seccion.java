@@ -1,6 +1,8 @@
 package com.matricula.entity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -9,7 +11,7 @@ import java.time.LocalTime;
  */
 @Entity
 @Table(name = "Seccion")
-public class Seccion {
+public class Seccion extends BaseEntity{
 
     @Id
     @Column(length = 20)
@@ -27,7 +29,7 @@ public class Seccion {
     private String idAulaDR;
 
     @Column(nullable = false)
-    private LocalDateTime fechaInicio;
+    private LocalDate fechaInicio; // MODIFICADO: Tipo de dato cambiado a LocalDate. Razón: Ya está la hora de inicio
 
     @Column(length = 20, nullable = false)
     private String diaSemana;
@@ -44,11 +46,11 @@ public class Seccion {
     @Column(length = 50, nullable = false)
     private String usuarioRegistro;
 
-    @Column(nullable = false)
-    private LocalDateTime fechaUltModificacion;
+    @Column
+    private LocalDateTime fechaUltModificacion;  // MODIFICADO: Atributo 'nullable' eliminado. Razón: Este campo solo se asigna al realizar una modificación del registro, es nulo en la creación inicial.
 
-    @Column(length = 50, nullable = false)
-    private String usuarioUltModificacion;
+    @Column(length = 50)
+    private String usuarioUltModificacion;  // MODIFICADO: Atributo 'nullable' eliminado. Razón: Este campo solo se asigna al realizar una modificación del registro, es nulo en la creación inicial.
 
     @Column(nullable = false)
     private Boolean estadoSeccion;
@@ -90,11 +92,11 @@ public class Seccion {
         this.idAulaDR = idAulaDR;
     }
 
-    public LocalDateTime getFechaInicio() {
+    public LocalDate getFechaInicio() {
         return fechaInicio;
     }
 
-    public void setFechaInicio(LocalDateTime fechaInicio) {
+    public void setFechaInicio(LocalDate fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
 

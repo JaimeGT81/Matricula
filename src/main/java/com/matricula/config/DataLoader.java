@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,8 +30,9 @@ public class DataLoader implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final AlumnoRepository alumnoRepository;
     private final CursoRepository cursoRepository;
+    private final SeccionRepository seccionRepo;
 
-    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder, AlumnoRepository alumnoRepository, CursoRepository cursoRepository) {
+    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder, AlumnoRepository alumnoRepository, CursoRepository cursoRepository, SeccionRepository seccionRepo) {
         this.ubigeoRepo = ubigeoRepo;
         this.userRepo = userRepo;
         this.carreraRepo = carreraRepo;
@@ -37,6 +40,7 @@ public class DataLoader implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
         this.alumnoRepository = alumnoRepository;
         this.cursoRepository = cursoRepository;
+        this.seccionRepo = seccionRepo;
     }
 
     @Override
@@ -48,6 +52,7 @@ public class DataLoader implements CommandLineRunner {
         loadDocentes();
         loadAlumnos();
         loadCursos();
+        loadSecciones();
     }
 
     private void loadUsers() {
@@ -278,4 +283,46 @@ public class DataLoader implements CommandLineRunner {
         cursoRepository.saveAll(cursos);
     }
 
+    private void loadSecciones() throws Exception {
+        if (seccionRepo.count() > 0) {
+            return;
+        }
+        ClassPathResource resource = new ClassPathResource("data/Seccion.csv");
+        if (!resource.exists()) {
+            throw new IllegalStateException(
+                    "Seccion.csv no encontrado en classpath 'data/Seccion.csv'"
+            );
+        }
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-d");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSSSSSS");
+
+        try (var reader = new BufferedReader(
+                new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            List<Seccion> lista = reader.lines()
+                    .skip(1)
+                    .map(line -> {
+                        String[] cols = line.split(",", -1);
+                        Seccion s = new Seccion();
+                        s.setSeccionNRC(cols[0]);
+                        s.setDiaSemana(cols[1]);
+                        s.setEstadoSeccion(cols[2].equals("1"));
+                        s.setFechaInicio(LocalDate.parse(cols[3], dateFormatter));
+                        s.setHoraFin(LocalTime.parse(cols[4], timeFormatter));
+                        s.setHoraInicio(LocalTime.parse(cols[5], timeFormatter));
+                        s.setIdAulaDR(cols[6]);
+                        s.setModalidad(cols[7]);
+                        Curso curso = cursoRepository.findById(cols[8])
+                                .orElseThrow(() -> new IllegalStateException("Curso no encontrado con ID: " + cols[8]));
+                        s.setCurso(curso);
+                        Docente docente = docenteRepo.findById(cols[9])
+                                .orElseThrow(() -> new IllegalStateException("Docente no encontrado con ID: " + cols[9]));
+                        s.setDocente(docente);
+                        s.setFechaRegistro(LocalDateTime.now());
+                        s.setUsuarioRegistro("admin");
+                        return s;
+                    })
+                    .collect(Collectors.toList());
+            seccionRepo.saveAll(lista);
+        }
+    }
 }
