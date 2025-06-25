@@ -1,19 +1,25 @@
 package com.matricula.service.impl;
 
 import com.matricula.dto.SeccionDto;
+import com.matricula.dto.AlumnoDTO;
+import com.matricula.entity.Alumno;
 import com.matricula.entity.Seccion;
-import com.matricula.repository.CursoRepository;
-import com.matricula.repository.DocenteRepository;
-import com.matricula.repository.SeccionRepository;
+import com.matricula.repository.*;
 import com.matricula.service.BaseService;
 import com.matricula.service.SeccionService;
+import com.matricula.entity.SeccionAlumno;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class SeccionServiceImpl implements SeccionService {
@@ -22,11 +28,19 @@ public class SeccionServiceImpl implements SeccionService {
     private final DocenteRepository docenteRepository;
     private final CursoRepository cursoRepository;
     private final BaseService<Seccion,String> baseService;
+    private final SeccionAlumnoRepository seccionAlumnoRepository;
+    private final AlumnoRepository alumnoRepository;
 
-    public SeccionServiceImpl(SeccionRepository seccionRepository, DocenteRepository docenteRepository, CursoRepository cursoRepository){
+    public SeccionServiceImpl(SeccionRepository seccionRepository,
+                              DocenteRepository docenteRepository,
+                              CursoRepository cursoRepository,
+                              SeccionAlumnoRepository seccionAlumnoRepository,
+                              AlumnoRepository alumnoRepository) {
         this.seccionRepository = seccionRepository;
         this.docenteRepository = docenteRepository;
         this.cursoRepository = cursoRepository;
+        this.seccionAlumnoRepository = seccionAlumnoRepository;
+        this.alumnoRepository = alumnoRepository;
 
         this.baseService = new BaseServiceImpl<Seccion, String>(seccionRepository) {
             @Override
@@ -41,6 +55,7 @@ public class SeccionServiceImpl implements SeccionService {
                 copy.setHoraInicio(entity.getHoraInicio());
                 copy.setHoraFin(entity.getHoraFin());
                 copy.setModalidad(entity.getModalidad());
+                copy.setMaxParticipantes(entity.getMaxParticipantes());
                 return copy;
             }
         };
@@ -114,6 +129,7 @@ public class SeccionServiceImpl implements SeccionService {
         dto.setUsuarioRegistro(s.getUsuarioRegistro());
         dto.setFechaModificacion(s.getFechaUltModificacion());
         dto.setUsuarioModificacion(s.getUsuarioUltModificacion());
+        dto.setMaxParticipantes(s.getMaxParticipantes());
         return dto;
     }
 
@@ -133,6 +149,122 @@ public class SeccionServiceImpl implements SeccionService {
         s.setUsuarioRegistro(dto.getUsuarioRegistro());
         s.setFechaUltModificacion(dto.getFechaModificacion());
         s.setUsuarioUltModificacion(dto.getUsuarioModificacion());
+        s.setMaxParticipantes(dto.getMaxParticipantes());
         return s;
+    }
+
+    @Override
+    public List<AlumnoDTO> getParticipantes(String nrc) {
+        return seccionAlumnoRepository.findBySeccion_SeccionNRC(nrc)
+                .stream()
+                .map(SeccionAlumno::getAlumno)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AlumnoDTO> getAlumnosDisponibles(String nrc) {
+        List<AlumnoDTO> participantes = getParticipantes(nrc);
+        Pageable unpaged = Pageable.unpaged();
+
+        return alumnoRepository.findByEstadoTrue(unpaged)
+                .getContent()
+                .stream()
+                .filter(alumno -> participantes.stream()
+                        .noneMatch(p -> p.getDniAlum().equals(alumno.getDniAlum())))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private AlumnoDTO convertToDTO(Alumno alumno) {
+        return new AlumnoDTO(
+                alumno.getDniAlum(),
+                alumno.getNombres(),
+                alumno.getApellidos()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void addParticipante(String nrc, String dniAlumno, String username) {
+        Seccion seccion = seccionRepository.findById(nrc)
+                .orElseThrow(() -> new RuntimeException("Sección no encontrada"));
+        Alumno alumno = alumnoRepository.findById(dniAlumno)
+                .orElseThrow(() -> new RuntimeException("Alumno no encontrado"));
+
+        if (!seccionAlumnoRepository.existsBySeccionAndAlumno(nrc, dniAlumno)) {
+            SeccionAlumno seccionAlumno = new SeccionAlumno();
+            seccionAlumno.setSeccion(seccion);
+            seccionAlumno.setAlumno(alumno);
+            seccionAlumno.setEstado(true);
+            seccionAlumno.setFechaRegistro(LocalDateTime.now());
+            seccionAlumno.setUsuarioRegistro(username);
+            seccionAlumnoRepository.save(seccionAlumno);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeParticipante(String nrc, String dniAlumno, String username) {
+        SeccionAlumno seccionAlumno = seccionAlumnoRepository.findBySeccionAndAlumno(nrc, dniAlumno);
+        if (seccionAlumno != null) {
+            seccionAlumno.setEstado(false);
+            seccionAlumno.setUsuarioUltModificacion(username);
+            seccionAlumno.setFechaUltModificacion(LocalDateTime.now());
+            seccionAlumnoRepository.save(seccionAlumno);
+        }
+    }
+
+    @Override
+    public void updateParticipantes(String nrc, List<String> participantes, String username) {
+        Seccion seccion = seccionRepository.findById(nrc)
+                .orElseThrow(() -> new RuntimeException("Sección no encontrada"));
+
+        // Validate maximum participants
+        if (participantes.size() > seccion.getMaxParticipantes()) {
+            throw new RuntimeException("Excede el máximo de participantes permitidos: " + seccion.getMaxParticipantes());
+        }
+
+        // Get current participants
+        List<SeccionAlumno> currentParticipantes = seccionAlumnoRepository.findBySeccion_SeccionNRC(nrc);
+
+        // Deactivate removed participants
+        currentParticipantes.forEach(sa -> {
+            if (!participantes.contains(sa.getAlumno().getDniAlum())) {
+                sa.setEstado(false);
+                sa.setUsuarioModificacion(username);
+                sa.setFechaModificacion(LocalDateTime.now());
+                seccionAlumnoRepository.save(sa);
+            }
+        });
+
+        // Add new participants
+        participantes.forEach(dniAlum -> {
+            SeccionAlumno existingParticipante = currentParticipantes.stream()
+                    .filter(sa -> sa.getAlumno().getDniAlum().equals(dniAlum))
+                    .findFirst()
+                    .orElse(null);
+
+            if (existingParticipante != null) {
+                // Reactivate if needed
+                if (!existingParticipante.getEstado()) {
+                    existingParticipante.setEstado(true);
+                    existingParticipante.setUsuarioModificacion(username);
+                    existingParticipante.setFechaModificacion(LocalDateTime.now());
+                    seccionAlumnoRepository.save(existingParticipante);
+                }
+            } else {
+                // Create new participant
+                Alumno alumno = alumnoRepository.findById(dniAlum)
+                        .orElseThrow(() -> new RuntimeException("Alumno no encontrado"));
+                SeccionAlumno newParticipante = new SeccionAlumno();
+                newParticipante.setSeccion(seccion);
+                newParticipante.setAlumno(alumno);
+                newParticipante.setEstado(true);
+                newParticipante.setUsuarioRegistro(username);
+                newParticipante.setFechaRegistro(LocalDateTime.now());
+                seccionAlumnoRepository.save(newParticipante);
+            }
+        });
     }
 }

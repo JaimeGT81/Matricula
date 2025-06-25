@@ -9,4 +9,5 @@ import org.springframework.data.repository.NoRepositoryBean;
 public interface BaseRepository<T, ID> extends JpaRepository<T, ID> {
     Page<T> findByEstadoTrue(Pageable pageable);
     Page<T> findByEstadoFalseOrderByFechaBajaDesc(Pageable pageable);
+    Page<T> findByEstadoFalse(Pageable pageable);
 }

@@ -58,6 +58,9 @@ public class Seccion extends BaseEntity{
     @Column(length = 50, nullable = false)
     private String modalidad;
 
+    @Column(nullable = false)
+    private int maxParticipantes; // MODIFICADO: Atributo agregado para definir el número máximo de participantes en la sección.
+
     // Getters and setters...
 
     public String getSeccionNRC() {
@@ -170,5 +173,12 @@ public class Seccion extends BaseEntity{
 
     public void setModalidad(String modalidad) {
         this.modalidad = modalidad;
+    }
+
+    public int getMaxParticipantes() {
+        return maxParticipantes;
+    }
+    public void setMaxParticipantes(int maxParticipantes) {
+        this.maxParticipantes = maxParticipantes;
     }
 }

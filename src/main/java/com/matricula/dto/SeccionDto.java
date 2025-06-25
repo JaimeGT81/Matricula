@@ -20,6 +20,7 @@ public class SeccionDto {
     private LocalDateTime fechaModificacion;
     private String usuarioModificacion;
     private Boolean estado;
+    private int maxParticipantes; /*TODO: Falta persistir los datos*/
 
     private List<String> alumnos; /*TODO: Falta persistir los datos*/
 
@@ -141,5 +142,13 @@ public class SeccionDto {
 
     public void setAlumnos(List<String> alumnos) {
         this.alumnos = alumnos;
+    }
+
+    public int getMaxParticipantes() {
+        return maxParticipantes;
+    }
+
+    public void setMaxParticipantes(int maxParticipantes) {
+        this.maxParticipantes = maxParticipantes;
     }
 }

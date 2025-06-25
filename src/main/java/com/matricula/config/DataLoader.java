@@ -296,6 +296,9 @@ public class DataLoader implements CommandLineRunner {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-d");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSSSSSS");
 
+        // Create a random number generator for maxParticipantes
+        Random random = new Random();
+
         try (var reader = new BufferedReader(
                 new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
             List<Seccion> lista = reader.lines()
@@ -319,6 +322,10 @@ public class DataLoader implements CommandLineRunner {
                         s.setDocente(docente);
                         s.setFechaRegistro(LocalDateTime.now());
                         s.setUsuarioRegistro("admin");
+
+                        // Set random maxParticipantes between 10 and 30
+                        s.setMaxParticipantes(random.nextInt(21) + 10);
+
                         return s;
                     })
                     .collect(Collectors.toList());
