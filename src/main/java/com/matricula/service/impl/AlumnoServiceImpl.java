@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AlumnoServiceImpl implements AlumnoService {
     private final AlumnoRepository alumnoRepository;
@@ -17,14 +19,14 @@ public class AlumnoServiceImpl implements AlumnoService {
     @Autowired
     public AlumnoServiceImpl(AlumnoRepository alumnoRepository) {
         this.alumnoRepository = alumnoRepository;
-        this.baseService = new BaseServiceImpl<Alumno, String>(alumnoRepository) {
+        this.baseService = new BaseServiceImpl<>(alumnoRepository) {
             @Override
             protected Alumno createNewVersion(Alumno entity) {
                 Alumno copy = new Alumno();
                 copy.setDniAlum(entity.getDniAlum());
                 copy.setNombres(entity.getNombres());
                 copy.setApellidos(entity.getApellidos());
-                // Copy other relevant fields
+                copy.setEstado(entity.getActivo());
                 return copy;
             }
         };
@@ -53,5 +55,15 @@ public class AlumnoServiceImpl implements AlumnoService {
     @Override
     public Page<Alumno> findAllInactive(Pageable pageable) {
         return baseService.findAllInactive(pageable);
+    }
+
+    @Override
+    public List<Alumno> findAlumnosNotInSeccion(String nrc) {
+        return alumnoRepository.findAlumnosNotInSeccion(nrc);
+    }
+
+    @Override
+    public List<Alumno> findAlumnosBySeccion(String nrc) {
+        return alumnoRepository.findAlumnosBySeccion(nrc);
     }
 }
