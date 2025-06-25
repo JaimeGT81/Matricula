@@ -1,0 +1,35 @@
+<!-- finanzas.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Finanzas - Sistema de Matrícula</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+    <h1>Sistema de Matrícula</h1>
+</header>
+<div>
+    <a th:href="@{/inicio}" class="px-4 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition flex items-center">
+        Inicio
+    </a>
+</div>
+<nav class="menu-grid">
+    <a th:href="@{/cuotas}" class="menu-item">
+        <img th:src="@{/images/cuotas.jpg}" alt="Cuotas"/>
+        <div>Cuotas</div>
+    </a>
+    <a th:href="@{/pagos}" class="menu-item">
+        <img th:src="@{/images/pagos.jpg}" alt="Pagos"/>
+        <div>Pagos</div>
+    </a>
+</nav>
+
+<footer>
+    <a th:href="@{/logout}" class="logout-button" title="Cerrar sesión">
+        <img th:src="@{/images/exit.png}" alt="Salir"/>
+    </a>
+</footer>
+</body>
+</html>
