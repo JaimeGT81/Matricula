@@ -1,0 +1,107 @@
+<!-- cuotas.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Cuotas - Finanzas</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body class="mx-auto max-w-7xl px-4 py-6">
+<div class="flex items-center space-x-4 mb-6">
+  <a th:href="@{/finanzas}" class="px-4 py-2 bg-gray-500 text-white rounded-lg">
+    ← Volver a Finanzas
+  </a>
+  <h1 class="text-3xl font-bold">Gestión de Cuotas</h1>
+</div>
+
+<!-- Filtro por DNI -->
+<div class="bg-white p-4 rounded-lg shadow border border-gray-200 mb-6">
+  <form method="get" th:action="@{/cuotas}" class="flex space-x-4 items-end">
+    <div>
+      <label class="block text-sm">DNI Alumno</label>
+      <input name="dniAlum" th:value="${param.dniAlum}" placeholder="Filtrar por DNI"
+             class="px-3 py-2 border rounded"/>
+    </div>
+    <button type="submit"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      Buscar
+    </button>
+    <button type="button" onclick="document.getElementById('modalGenerar').classList.remove('hidden')"
+            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+      Generar Cuotas
+    </button>
+  </form>
+</div>
+
+<!-- Modal Generar Cuotas -->
+<div id="modalGenerar" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+  <div class="bg-white p-6 rounded-lg w-96">
+    <h2 class="text-xl font-bold mb-4">Generar Cuotas</h2>
+    <form th:action="@{/cuotas/generar}" method="post" class="space-y-4">
+      <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <div>
+        <label class="block text-sm">DNI Alumno</label>
+        <input name="dniAlum" required class="w-full px-3 py-2 border rounded"/>
+      </div>
+      <div>
+        <label class="block text-sm">Cantidad Mensualidades</label>
+        <input name="cantidad" type="number" min="1" required class="w-full px-3 py-2 border rounded"/>
+      </div>
+      <div>
+        <label class="block text-sm">Monto Matrícula</label>
+        <input name="montoMatricula" type="number" step="0.01" required class="w-full px-3 py-2 border rounded"/>
+      </div>
+      <div>
+        <label class="block text-sm">Monto Mensual</label>
+        <input name="montoMensual" type="number" step="0.01" required class="w-full px-3 py-2 border rounded"/>
+      </div>
+      <div class="flex justify-end space-x-2 pt-4">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Generar</button>
+        <button type="button" onclick="document.getElementById('modalGenerar').classList.add('hidden')"
+                class="px-4 py-2 bg-red-500 text-white rounded">Cerrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabla de Cuotas -->
+<div class="bg-white shadow rounded overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+    <tr>
+      <th class="px-4 py-2">ID</th>
+      <th class="px-4 py-2">Alumno</th>
+      <th class="px-4 py-2"># Cuota</th>
+      <th class="px-4 py-2">Monto</th>
+      <th class="px-4 py-2">Generación</th>
+      <th class="px-4 py-2">Pagado</th>
+      <th class="px-4 py-2">Acción</th>
+    </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 text-sm">
+    <tr th:each="c : ${cuotas.content}">
+      <td class="px-4 py-2" th:text="${c.id}"></td>
+      <td class="px-4 py-2" th:text="${c.alumno.dniAlum}"></td>
+      <td class="px-4 py-2" th:text="${c.numeroCuota}"></td>
+      <td class="px-4 py-2" th:text="${c.monto}"></td>
+      <td class="px-4 py-2" th:text="${#temporals.format(c.fechaGeneracion,'dd/MM/yyyy')}"></td>
+      <td class="px-4 py-2" th:text="${c.pagado} ? 'Sí' : 'No'"></td>
+      <td class="px-4 py-2">
+        <form th:if="${!c.pagado}" th:action="@{/cuotas/pagar/{id}(id=${c.id})}" method="post" class="flex space-x-2">
+          <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <input name="codigoOperacion" placeholder="Voucher" required
+                 class="px-2 py-1 border rounded text-sm"/>
+          <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded">Pagar</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="p-4">
+    <span th:text="'Página ' + ${cuotas.number + 1} + ' de ' + ${cuotas.totalPages}"></span>
+  </div>
+</div>
+</body>
+</html>
