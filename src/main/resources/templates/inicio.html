@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <title>Inicio - Sistema de Matrícula</title>
@@ -35,7 +35,7 @@
         <img th:src="@{/images/reportes.png}" alt="Reportes"/>
         <div>Reportes</div>
     </a>
-    <a th:href="@{/configuracion}" class="menu-item">
+    <a th:if="${isAdmin}"   th:href="@{/config/users}" class="menu-item">
         <img th:src="@{/images/configuracion.png}" alt="Configuración"/>
         <div>Configuración</div>
     </a>

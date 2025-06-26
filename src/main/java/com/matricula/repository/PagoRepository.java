@@ -8,5 +8,4 @@ public interface PagoRepository
         extends BaseRepository<Pago, String> {
     Page<Pago> findByCuotaAlumnoDniAlum(String dniAlum, Pageable pageable);
     boolean existsByCuota_Alumno_DniAlum(String dniAlum);
-
 }
