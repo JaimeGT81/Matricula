@@ -2,6 +2,9 @@ package com.matricula.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * HU001: Módulo de autenticación
@@ -25,17 +28,13 @@ public class UserAccount {
     @Column(name = "Fecha_Conexion")
     private LocalDateTime fechaConexion;
 
-    @Column(name = "Rol")
-    private Short rol;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="role_name")
+    private Role role;
 
     // getters y setters...
-    public Short getRol() {
-        return rol;
-    }
-
-    public void setRol(Short rol) {
-        this.rol = rol;
-    }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
     public LocalDateTime getFechaConexion() {
         return fechaConexion;

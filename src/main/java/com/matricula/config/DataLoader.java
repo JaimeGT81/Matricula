@@ -31,8 +31,9 @@ public class DataLoader implements CommandLineRunner {
     private final AlumnoRepository alumnoRepository;
     private final CursoRepository cursoRepository;
     private final SeccionRepository seccionRepo;
+    private final RoleRepository roleRepo;
 
-    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder, AlumnoRepository alumnoRepository, CursoRepository cursoRepository, SeccionRepository seccionRepo) {
+    public DataLoader(UbigeoRepository ubigeoRepo, UserRepository userRepo, CarreraRepository carreraRepo, DocenteRepository docenteRepo, PasswordEncoder passwordEncoder, AlumnoRepository alumnoRepository, CursoRepository cursoRepository, SeccionRepository seccionRepo, RoleRepository roleRepo) {
         this.ubigeoRepo = ubigeoRepo;
         this.userRepo = userRepo;
         this.carreraRepo = carreraRepo;
@@ -41,6 +42,7 @@ public class DataLoader implements CommandLineRunner {
         this.alumnoRepository = alumnoRepository;
         this.cursoRepository = cursoRepository;
         this.seccionRepo = seccionRepo;
+        this.roleRepo = roleRepo;
     }
 
     @Override
@@ -56,6 +58,17 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void loadUsers() {
+        if (roleRepo.count() == 0) {
+            List<String> names = List.of("ADMIN","GENERAL","USER");
+            names.forEach(r -> {
+                if (!roleRepo.existsById(r)) {
+                    Role rol = new Role();
+                    rol.setName(r);
+                    roleRepo.save(rol);
+                }
+            });
+        }
+
         if (userRepo.count() == 0) {
             UserAccount admin = new UserAccount();
             admin.setUserId("admin");
@@ -63,7 +76,7 @@ public class DataLoader implements CommandLineRunner {
             admin.setUserPassword(passwordEncoder.encode( "12345"));
             admin.setFechaRegistro(LocalDateTime.now());
             admin.setFechaConexion(LocalDateTime.now());
-            admin.setRol((short)1);
+            admin.setRole(roleRepo.getById("ADMIN"));
             userRepo.save(admin);
         }
     }
