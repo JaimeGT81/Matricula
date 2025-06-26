@@ -4,6 +4,7 @@ import com.matricula.entity.Pago;
 import com.matricula.service.PagoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -38,5 +39,11 @@ public class PagoController {
         model.addAttribute("currentPage", pagos.getNumber());
         model.addAttribute("totalPages",  pagos.getTotalPages());
         return "pagos";
+    }
+
+    @GetMapping("/validate/{dniAlum}")
+    public ResponseEntity<Boolean> validatePayment(@PathVariable String dniAlum) {
+        boolean hasValidPayment = pagoService.hasValidPayment(dniAlum);
+        return ResponseEntity.ok(hasValidPayment);
     }
 }
