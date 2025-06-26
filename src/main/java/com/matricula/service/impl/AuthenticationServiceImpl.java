@@ -5,11 +5,15 @@ import com.matricula.entity.UserAccount;
 import com.matricula.repository.UserRepository;
 import com.matricula.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -22,6 +26,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @Override
     public boolean authenticate(LoginForm form) {
 //        logger.info("Entering authenticate method with username: {}", form.getUsername());
@@ -32,4 +39,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 })
                 .orElse(false);
     }
+
 }
