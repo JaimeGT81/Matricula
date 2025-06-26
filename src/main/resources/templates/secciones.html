@@ -475,20 +475,39 @@
 
     function renderAlumnos(alumnos, tableId, isDisponible) {
         const tbody = document.getElementById(tableId);
+
         alumnos.forEach(alumno => {
-            const row = document.createElement('tr');
-            row.className = 'hover:bg-gray-50';
-            row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm">${alumno.dniAlum}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">${alumno.nombres} ${alumno.apellidos}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <button onclick="moverAlumno('${alumno.dniAlum}', ${!isDisponible})"
-                        class="text-blue-600 hover:text-blue-900 text-xl font-bold">
-                    ${isDisponible ? '➜' : '←'}
-                </button>
-            </td>
-        `;
-            tbody.appendChild(row);
+            // Check payment status first
+            fetch(`/pagos/validate/${alumno.dniAlum}`)
+                .then(response => response.json())
+                .then(hasValidPayment => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+
+                    const moveButton = hasValidPayment || !isDisponible ?
+                        `<button onclick="moverAlumno('${alumno.dniAlum}', ${!isDisponible})"
+                            class="text-blue-600 hover:text-blue-900 text-xl font-bold">
+                        ${isDisponible ? '➜' : '←'}
+                     </button>` :
+                        `<button disabled title="Pago pendiente"
+                            class="text-gray-400 cursor-not-allowed text-xl font-bold">
+                        ➜
+                     </button>`;
+
+                    row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">${alumno.dniAlum}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">${alumno.nombres} ${alumno.apellidos}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        ${moveButton}
+                    </td>
+                `;
+
+                    if (!hasValidPayment && isDisponible) {
+                        row.classList.add('bg-red-50');
+                    }
+
+                    tbody.appendChild(row);
+                });
         });
     }
 

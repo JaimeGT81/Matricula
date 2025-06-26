@@ -63,4 +63,10 @@ public class PagoServiceImpl
     public Page<Pago> findAllByAlumnoDni(String dniAlum, Pageable pageable) {
         return pagoRepo.findByCuotaAlumnoDniAlum(dniAlum, pageable);
     }
+
+    @Override
+    public boolean hasValidPayment(String dniAlum) {
+        // Find any paid cuotas for the student that haven't expired
+        return pagoRepo.existsByCuota_Alumno_DniAlum(dniAlum);
+    }
 }

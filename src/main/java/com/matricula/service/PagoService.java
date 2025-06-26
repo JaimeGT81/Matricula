@@ -14,4 +14,6 @@ public interface PagoService
     );
 
     Page<Pago> findAllByAlumnoDni(String dniAlum, Pageable pageable);
+
+    boolean hasValidPayment(String dniAlum);
 }
