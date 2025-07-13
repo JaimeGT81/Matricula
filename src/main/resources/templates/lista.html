@@ -5,6 +5,7 @@
     <title>Reportes - Sistema de Matrícula</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
 </head>
 <body>
 <div class="container">
@@ -32,6 +33,17 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Resumen de Alumnos</h3>
+
+            <!-- Botones de exportación -->
+            <div class="export-buttons" style="margin-bottom: 15px;">
+                <button onclick="exportarExcel()" class="btn-success">
+                    📊 Exportar a Excel
+                </button>
+                <button onclick="exportarPDF()" class="btn-danger">
+                    📄 Exportar a PDF
+                </button>
+            </div>
+
             <div class="table-responsive">
                 <table id="resumenAlumnosTable" class="display">
                     <thead>
@@ -52,6 +64,11 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
 <script th:inline="javascript">
     let resumenTable;
 
@@ -69,12 +86,47 @@
                     {data: 'secciones'},
                     {data: 'cuotas'},
                     {data: 'pagos'}
+                ],
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: 'Excel',
+                        className: 'btn-export-excel',
+                        title: 'Resumen de Alumnos',
+                        filename: 'resumen_alumnos_' + new Date().toISOString().split('T')[0]
+                    },
+                    {
+                        extend: 'pdf',
+                        text: 'PDF',
+                        className: 'btn-export-pdf',
+                        title: 'Resumen de Alumnos',
+                        filename: 'resumen_alumnos_' + new Date().toISOString().split('T')[0],
+                        orientation: 'landscape',
+                        pageSize: 'A4'
+                    }
                 ]
             });
         } else {
             resumenTable.ajax.reload();
         }
         $('#resumenModal').show();
+    }
+
+    function exportarExcel() {
+        if (resumenTable) {
+            resumenTable.button('.btn-export-excel').trigger();
+        } else {
+            alert('Por favor, carga el reporte primero');
+        }
+    }
+
+    function exportarPDF() {
+        if (resumenTable) {
+            resumenTable.button('.btn-export-pdf').trigger();
+        } else {
+            alert('Por favor, carga el reporte primero');
+        }
     }
 
     $('.close').click(() => $('#resumenModal').hide());
@@ -84,5 +136,44 @@
         }
     });
 </script>
+
+<style>
+    .export-buttons {
+        text-align: right;
+        margin-bottom: 15px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    /* Ocultar los botones de DataTables por defecto */
+    .dt-buttons {
+        display: none;
+    }
+</style>
 </body>
 </html>
