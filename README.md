@@ -95,17 +95,6 @@ Archivo de ejemplo: `.github/workflows/maven.yml`.
 
 ---
 
-## Pruebas
-
-Se incluyen pruebas unitarias con **JUnit 5** en el paquete `com.matricula`.
-
-Ejecutar:
-```bash
-mvn test
-```
-
----
-
 ## Contribuciones
 
 1. Hacer un _fork_ del repositorio.
